@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode", "AdventOfCode\AdventOfCode.fsproj", "{DE89FCF0-34AD-4FBC-939B-C544C56FCE9C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D289AF89-E795-4C04-99F9-27E4F290EA43}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode", "src\AdventOfCode\AdventOfCode.fsproj", "{F2B9B8D7-7826-4FBB-A341-E824A00E7D51}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode.Solutions", "src\AdventOfCode.Solutions\AdventOfCode.Solutions.fsproj", "{68954197-2638-46B6-83F9-7E2E88FC9633}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +18,17 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DE89FCF0-34AD-4FBC-939B-C544C56FCE9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE89FCF0-34AD-4FBC-939B-C544C56FCE9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE89FCF0-34AD-4FBC-939B-C544C56FCE9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE89FCF0-34AD-4FBC-939B-C544C56FCE9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2B9B8D7-7826-4FBB-A341-E824A00E7D51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2B9B8D7-7826-4FBB-A341-E824A00E7D51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2B9B8D7-7826-4FBB-A341-E824A00E7D51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2B9B8D7-7826-4FBB-A341-E824A00E7D51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68954197-2638-46B6-83F9-7E2E88FC9633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68954197-2638-46B6-83F9-7E2E88FC9633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68954197-2638-46B6-83F9-7E2E88FC9633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68954197-2638-46B6-83F9-7E2E88FC9633}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F2B9B8D7-7826-4FBB-A341-E824A00E7D51} = {D289AF89-E795-4C04-99F9-27E4F290EA43}
+		{68954197-2638-46B6-83F9-7E2E88FC9633} = {D289AF89-E795-4C04-99F9-27E4F290EA43}
 	EndGlobalSection
 EndGlobal
