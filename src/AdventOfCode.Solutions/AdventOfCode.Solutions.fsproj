@@ -8,6 +8,7 @@
     <ItemGroup>
         <Compile Include="2021\Day01.fs" />
         <Folder Include="2021\2018" />
+        <Compile Include="2018\Day02.fs" />
     </ItemGroup>
 
 </Project>
