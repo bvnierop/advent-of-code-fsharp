@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
@@ -9,6 +9,7 @@
         <Compile Include="Solver.fs" />
         <Compile Include="2021\Day01.fs" />
         <Compile Include="2018\Day02.fs" />
+        <Compile Include="2020\Day01.fs" />
     </ItemGroup>
 
 </Project>

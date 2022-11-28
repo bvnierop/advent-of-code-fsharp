@@ -8,15 +8,20 @@
 
   <ItemGroup>
     <Compile Include="Program.fs" />
-    <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)"/>
+    <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AdventOfCode.Client\AdventOfCode.Client.csproj" />
     <ProjectReference Include="..\AdventOfCode.Solutions\AdventOfCode.Solutions.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Remove="2021\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Refit" Version="6.3.2" />
   </ItemGroup>
 
 </Project>
