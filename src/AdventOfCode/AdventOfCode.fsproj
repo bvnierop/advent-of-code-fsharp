@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <Compile Include="CommandHelpers.fs" />
+    <Compile Include="Run.fs" />
+    <Compile Include="Prep.fs" />
     <Compile Include="Program.fs" />
     <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
     <Content Include="..\..\.session" CopyToOutputDirectory="PreserveNewest" Link=".session" />
