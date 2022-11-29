@@ -1,6 +1,6 @@
 namespace AdventOfCode.Solutions._2020
 
-open AdventOfCode.Solutions.Solver
+open AdventOfCode.Lib.Solver
 open System
 
 module Day05 =

@@ -1,6 +1,6 @@
 namespace AdventOfCode.Solutions._2018
 
-open AdventOfCode.Solutions.Solver
+open AdventOfCode.Lib .Solver
 
 module Day02 =
     

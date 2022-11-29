@@ -1,7 +1,7 @@
 namespace AdventOfCode.Solutions._2021
 
 open System
-open AdventOfCode.Solutions.Solver
+open AdventOfCode.Lib.Solver
 
 module Day06 =
     let parse (inp: string list) =

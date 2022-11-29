@@ -5,13 +5,14 @@ open AdventOfCode.Client
 open Refit
 
 let run year day =
-    AdventOfCode.Solutions.Solver.runSolvers year day
+    AdventOfCode.Lib.Solver.runSolvers typeof<AdventOfCode.Solutions.t> year day
     
 let sourceFileTemplate year day =
     @$"
 namespace AdventOfCode.Solutions._{year}
 
-open AdventOfCode.Solutions.Solver
+open AdventOfCode.Lib.Solver
+open System
 
 module Day{day:D2} =
     [<AocSolver({year}, {day}, Level = 1)>]
@@ -49,8 +50,8 @@ let addFileToProject path prjFile =
         printfn $"{path} already part of project {prjFile}"
     else
         printfn $"Add {path} to project {prjFile}"
-        let openingLine = "    <ItemGroup>"
-        let closingLine = "    </ItemGroup>"
+        let openingLine = "    <ItemGroup> <!-- Solutions -->"
+        let closingLine = "    </ItemGroup> <!-- Solutions -->"
         
         // get the LAST item group
         let (preamble, rest) = Array.splitAt (Array.findIndexBack ((=) openingLine) lines) lines

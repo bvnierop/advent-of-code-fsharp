@@ -1,6 +1,6 @@
 namespace AdventOfCode.Solutions._2020
 
-open AdventOfCode.Solutions.Solver
+open AdventOfCode.Lib.Solver
 
 module Day01 =
     [<AocSolver(2020, 1, Level = 1)>]

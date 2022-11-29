@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode.Solutions.Year2021
 
-open AdventOfCode.Solutions.Solver
+open AdventOfCode.Lib.Solver
 open System
 
 module Day01 =

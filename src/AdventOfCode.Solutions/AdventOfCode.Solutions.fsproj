@@ -6,14 +6,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Solver.fs" />
+        <ProjectReference Include="..\AdventOfCode.Lib\AdventOfCode.Lib.fsproj" />
     </ItemGroup>
     
-    <ItemGroup>
+    <ItemGroup> <!-- Solutions -->
         <Compile Include="2018\Day02.fs" />
         <Compile Include="2020\Day01.fs" />
         <Compile Include="2020\Day05.fs" />
         <Compile Include="2021\Day01.fs" />
         <Compile Include="2021\Day06.fs" />
+    </ItemGroup> <!-- Solutions -->
+    
+    <ItemGroup>
+        <Compile Include="T.fs" />
     </ItemGroup>
 </Project>
