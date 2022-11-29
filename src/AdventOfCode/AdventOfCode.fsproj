@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="CommandHelpers.fs" />
     <Compile Include="Program.fs" />
     <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
+    <Content Include="..\..\.session" CopyToOutputDirectory="PreserveNewest" Link=".session" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Refit" Version="6.3.2" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
 </Project>

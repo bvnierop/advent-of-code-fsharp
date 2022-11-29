@@ -7,9 +7,11 @@
 
     <ItemGroup>
         <Compile Include="Solver.fs" />
-        <Compile Include="2021\Day01.fs" />
+    </ItemGroup>
+    <ItemGroup>
         <Compile Include="2018\Day02.fs" />
         <Compile Include="2020\Day01.fs" />
+        <Compile Include="2021\Day01.fs" />
     </ItemGroup>
 
 </Project>

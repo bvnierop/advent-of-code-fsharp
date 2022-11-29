@@ -1,10 +1,11 @@
-﻿open AdventOfCode.Client
+﻿open System
+open System.ComponentModel
+open AdventOfCode
+open AdventOfCode.Client
 open Refit
 
-let run () =
-    AdventOfCode.Solutions.Solver.runSolvers 2021 1
-    AdventOfCode.Solutions.Solver.runSolvers 2018 2
-    AdventOfCode.Solutions.Solver.runSolvers 2020 1
+let run year day =
+    AdventOfCode.Solutions.Solver.runSolvers year day
     
 let sourceFileTemplate year day =
     @$"
@@ -29,9 +30,15 @@ let ensureDir dir =
     printfn $"Ensure directory {dir} exists."
     System.IO.Directory.CreateDirectory(dir) |> ignore
     
-let writeFile file content =
+let overwriteFile file content =
     printfn $"Creating file {file}"
     System.IO.File.WriteAllText(file, content)
+    
+let writeFile file content =
+    if System.IO.File.Exists(file) then
+        printfn $"Skipping file {file}. It already exists."
+    else
+        overwriteFile file content
     
 let addFileToProject path prjFile =
     // Load project file
@@ -42,8 +49,24 @@ let addFileToProject path prjFile =
         printfn $"{path} already part of project {prjFile}"
     else
         printfn $"Add {path} to project {prjFile}"
+        let openingLine = "    <ItemGroup>"
         let closingLine = "    </ItemGroup>"
-        let newLines = Array.insertAt (Array.findIndex ((=) closingLine) lines) pathLine lines
+        
+        // get the LAST item group
+        let (preamble, rest) = Array.splitAt (Array.findIndexBack ((=) openingLine) lines) lines
+        let (middle, postamble) = Array.splitAt (Array.findIndexBack ((=) closingLine) rest) rest
+        
+        let compiles = Array.sort (Array.append (Array.skip 1 middle) [|pathLine|])
+        
+        let chainAppend two one = Array.append one two
+        
+        let newLines = preamble
+                       |> chainAppend [|openingLine|]
+                       |> chainAppend compiles
+                       |> chainAppend postamble
+                       
+        // REST contains openingLine, postamble contains closingLine
+        
         System.IO.File.WriteAllLines(prjFile, newLines)
 
 let prep year day =
@@ -57,7 +80,7 @@ let prep year day =
     let session = loadSession ()
     let input = aocClient.GetInput(year, day, session)
     let inFilePfx = $"input/{year}/{day:D2}"
-    writeFile $"{inFilePfx}.in" input
+    overwriteFile $"{inFilePfx}.in" input
     
     // Create test infile
     writeFile $"{inFilePfx}-test.in" ""
@@ -70,10 +93,65 @@ let prep year day =
     addFileToProject $"{year}\\Day{day:D2}.fs" "src/AdventOfCode.Solutions/AdventOfCode.Solutions.fsproj"
     ()
     
+module Commands =
+    open System.CommandLine
+    let makeRoot () = new RootCommand()
+    
+    let invoke (args: string array) (rootCommand: RootCommand) =
+        rootCommand.Invoke(args)
+    
+    let makeCommand name description = new Command(name, description)
+    
+    let addCommand command (root: RootCommand) =
+        root.AddCommand(command)
+        root
+    
+    let makeArg name description =
+        new Argument<'a>(name = name, description = description)
+        
+    let makeOptionalArg name description (getDefault: unit -> 'a) =
+        new Argument<'a>(name, getDefault, description)
+        
+    let addArg arg (command: Command) =
+        command.AddArgument(arg)
+        command
+        
+    let addNewArg name description command = addArg (makeArg name description) command
+        
+    let addOptionalArg name description getDefault command = addArg (makeOptionalArg name description getDefault) command
+    
+    let setHandler2 (handler: 'a -> 'b -> unit) arg1 arg2 (command: Command) =
+        command.SetHandler(handler, arg1, arg2)
+        command
+        
+        
+        
+open System.CommandLine
+                                        
+let buildProgram =
+    let yearArg = Commands.makeOptionalArg "year" "The year for which to run the command. Defaults to the current year." (fun () -> DateTime.Today.Year)
+    let dayArg = Commands.makeOptionalArg "day" "The day for which to run the command. Defaults to the current day." (fun () -> DateTime.Today.Day)
+    let runCommand = Commands.makeCommand "run" "Runs solvers for the given year and day."
+                     |> Commands.addArg yearArg
+                     |> Commands.addArg dayArg
+                     |> Commands.setHandler2 run yearArg dayArg
+                     
+    let prepCommand = Commands.makeCommand "prep" "Prepares input and skeleton code for the given year and day."
+                      |> Commands.addArg yearArg
+                      |> Commands.addArg dayArg
+                      |> Commands.setHandler2 prep yearArg dayArg
+    
+    let rootCommand = Commands.makeRoot ()
+                      |> Commands.addCommand runCommand
+                      |> Commands.addCommand prepCommand
+                      
+    rootCommand
+    
 [<EntryPoint>]
 let main args =
-    match args with
-    | [|"run"|] -> run ()
-    | [|"prep"|] -> prep 2020 1
-    | _ -> printfn "No arguments given."
-    0
+    let rootCommand = buildProgram
+    Commands.invoke args rootCommand
+    // match args with
+    // | [|"run"|] -> run ()
+    // | [|"prep"|] -> prep 2020 1
+    // | _ -> printfn "No arguments given."
