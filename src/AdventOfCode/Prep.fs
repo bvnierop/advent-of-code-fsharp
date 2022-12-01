@@ -79,8 +79,10 @@ let prep year day =
     let inFilePfx = $"input/{year}/{day:D2}"
     overwriteFile $"{inFilePfx}.in" input
     
-    // Create test infile
+    // Create test infile and outfiles
     writeFile $"{inFilePfx}-test.in" ""
+    writeFile $"{inFilePfx}-test-1.out" ""
+    writeFile $"{inFilePfx}-test-2.out" ""
     
     // Create file template
     let srcFile = $"src/AdventOfCode.Solutions/{year}/Day{day:D2}.fs"
