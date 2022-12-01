@@ -23,3 +23,4 @@ module Day01 =
         |> Seq.sortDescending
         |> Seq.take 3
         |> Seq.sum
+        

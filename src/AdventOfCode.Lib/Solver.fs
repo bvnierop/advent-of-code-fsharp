@@ -1,5 +1,7 @@
 ﻿namespace AdventOfCode.Lib
 
+open System
+
 module Solver = 
     open System.Reflection
     
@@ -9,6 +11,19 @@ module Solver =
         Level: int
         Method: MethodInfo
     }
+    
+    type ArgumentType =
+        | StringArgument
+        | StringListArgument
+        | UnsupportedArgument of Type
+        
+    let argumentType solver =
+        let args = solver.Method.GetParameters()
+        let firstArg = args.[0]
+        let paramType = firstArg.ParameterType
+        if paramType = typeof<string> then StringArgument
+        elif paramType = typeof<string list> then StringListArgument
+        else UnsupportedArgument(paramType)
 
     type AocSolverAttribute(year: int, day: int) =
         inherit System.Attribute()
@@ -33,12 +48,20 @@ module Solver =
             |> Array.map methodInfoToSolver
         aocSolvers
         
-    let runSolver input solver =
+    let convertInput (input: string) solver =
+        match argumentType solver with
+        | UnsupportedArgument t -> failwith $"Unsupported argument type for solver: {t}"
+        | StringArgument -> input.Replace("\r\n", "\n") :> obj
+        | StringListArgument -> input.Replace("\r\n", "\n").Split("\n") |> Array.toList :> obj
+        
+    let runSolver (rawInput: string) solver =
         printfn $"Running solver for {solver.Year}-12-{solver.Day:D2}, level {solver.Level}."
+        
+        let processedInput = convertInput rawInput solver
         
         let sw = new System.Diagnostics.Stopwatch()
         sw.Start()
-        let result = solver.Method.Invoke(null, [|input|])
+        let result = solver.Method.Invoke(null, [|processedInput|])
         sw.Stop()
         
         printfn $"{result}"
@@ -57,5 +80,5 @@ module Solver =
                 | None -> $"input/{year}/{day:D2}.in"
                 | Some f -> $"input/{year}/{day:D2}-{f}.in"
                 
-            let input = System.IO.File.ReadAllLines(inFile) |> Array.toList
+            let input = System.IO.File.ReadAllText(inFile)
             Array.iter (runSolver input) daySolvers
