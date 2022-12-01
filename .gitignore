@@ -457,3 +457,4 @@ $RECYCLE.BIN/
 ## User
 ##
 .session
+input/*/??.in
