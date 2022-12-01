@@ -26,8 +26,16 @@ let addNewArg name description command = addArg (makeArg name description) comma
     
 let addOptionalArg name description getDefault command = addArg (makeOptionalArg name description getDefault) command
 
+let makeOption longName description = new Option<'a>(name = longName, description = description)
+
+let addOption opt (command: Command) =
+    command.AddOption(opt)
+    command
+    
 let setHandler2 (handler: 'a -> 'b -> unit) arg1 arg2 (command: Command) =
     command.SetHandler(handler, arg1, arg2)
     command
 
-
+let setHandler3 (handler: 'a -> 'b -> 'c -> unit) arg1 arg2 arg3 (command: Command) =
+    command.SetHandler(handler, arg1, arg2, arg3)
+    command

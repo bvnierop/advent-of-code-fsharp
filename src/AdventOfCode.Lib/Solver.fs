@@ -44,7 +44,7 @@ module Solver =
         printfn $"{result}"
         printfn $"Solver ran in {sw.Elapsed}.{System.Environment.NewLine}"
         
-    let runSolvers t year day =
+    let runSolvers t year day inFileOpt =
         let daySolvers = findSolvers t
                          |> Array.filter (fun solver -> solver.Year = year && solver.Day = day)
                          |> Array.sortBy (fun solver -> solver.Level)
@@ -52,6 +52,10 @@ module Solver =
         if Array.isEmpty daySolvers then
             printfn $"No solvers found for {year}-12-{day:D2}."
         else
-            let inFile = $"input/{year}/{day:D2}.in"
+            let inFile = 
+                match inFileOpt with
+                | None -> $"input/{year}/{day:D2}.in"
+                | Some f -> $"input/{year}/{day:D2}-{f}.in"
+                
             let input = System.IO.File.ReadAllLines(inFile) |> Array.toList
             Array.iter (runSolver input) daySolvers

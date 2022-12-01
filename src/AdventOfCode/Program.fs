@@ -4,10 +4,14 @@ open AdventOfCode
 let buildProgram =
     let yearArg = Commands.makeOptionalArg "year" "The year for which to run the command. Defaults to the current year." (fun () -> DateTime.Today.Year)
     let dayArg = Commands.makeOptionalArg "day" "The day for which to run the command. Defaults to the current day." (fun () -> DateTime.Today.Day)
+    
+    let inFileOpt = Commands.makeOption "--file" "Specify the input file name."
+    
     let runCommand = Commands.makeCommand "run" "Runs solvers for the given year and day."
                      |> Commands.addArg yearArg
                      |> Commands.addArg dayArg
-                     |> Commands.setHandler2 Run.run yearArg dayArg
+                     |> Commands.addOption inFileOpt
+                     |> Commands.setHandler3 Run.run yearArg dayArg inFileOpt
                      
     let prepCommand = Commands.makeCommand "prep" "Prepares input and skeleton code for the given year and day."
                       |> Commands.addArg yearArg
