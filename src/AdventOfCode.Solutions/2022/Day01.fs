@@ -4,18 +4,9 @@ open AdventOfCode.Lib.Solver
 open System
 
 module Day01 =
-    let splitBy fn seq =
-        let i = ref 0
-        seq
-        |> Seq.groupBy (fun e ->
-            if fn e then incr i
-            !i)
-        |> Seq.map snd
-        
     let caloriesPerElf input = 
         input
-        |> splitBy ((=) "")
-        |> Seq.map (Seq.filter ((<>) ""))
+        |> Seq.splitOnExclusive ((=) "")
         |> Seq.map (Seq.map Int32.Parse)
         |> Seq.map (Seq.sum)
         
