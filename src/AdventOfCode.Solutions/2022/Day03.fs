@@ -10,14 +10,13 @@ module Day03 =
     
     let makeCompartments bag =
         bag
-        |> List.ofSeq
-        |> List.map convertToPrio
-        |> List.splitInto 2
+        |> Seq.map convertToPrio
+        |> Seq.splitInto 2
         
     let processBag bag =
         bag
         |> makeCompartments
-        |> List.map Set.ofList
+        |> Seq.map Set.ofSeq
         |> Set.intersectMany
         |> Set.sum
     
