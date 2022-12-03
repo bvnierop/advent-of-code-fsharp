@@ -8,29 +8,36 @@ module Day03 =
         if Char.IsLower itemType then Convert.ToInt32(itemType) - Convert.ToInt32('a') + 1
         else Convert.ToInt32(itemType) - Convert.ToInt32('A') + 27
     
+    let makeCompartments bag =
+        bag
+        |> List.ofSeq
+        |> List.map convertToPrio
+        |> List.splitInto 2
+        
+    let processBag bag =
+        bag
+        |> makeCompartments
+        |> List.map Set.ofList
+        |> Set.intersectMany
+        |> Set.sum
+    
     [<AocSolver(2022, 3, Level = 1)>]
     let solve1 (input: string list) =
         input
-        |> List.map List.ofSeq
-        |> List.map (List.splitInto 2)
-        |> List.map (List.map Set.ofList)
-        |> List.map Set.intersectMany
-        |> List.map Set.toList
-        |> List.map (List.map convertToPrio)
-        |> List.map List.sum
+        |> List.map processBag
         |> List.sum
+        
+    let processGroup group =
+        group
+        |> List.map Set.ofSeq
+        |> Set.intersectMany
+        |> Set.map convertToPrio
+        |> Set.sum
         
     [<AocSolver(2022, 3, Level = 2)>]
     let solve2 (input: string list) =
         input
-        |> List.map List.ofSeq
-        |> List.map Set.ofList
         |> List.chunkBySize 3
-        |> List.map (fun group ->
-            group
-            |> Set.intersectMany
-            |> Set.toList
-            |> List.map convertToPrio
-            |> List.sum)
+        |> List.map processGroup
         |> List.sum
         

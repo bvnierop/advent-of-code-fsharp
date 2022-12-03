@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Solver.fs" />
     <Compile Include="Seq.fs" />
+    <Compile Include="Set.fs" />
   </ItemGroup>
 
 </Project>
