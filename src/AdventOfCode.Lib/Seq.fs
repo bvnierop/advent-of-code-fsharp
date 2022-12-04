@@ -21,3 +21,5 @@ let splitOnExclusive predicate source =
             i)
     |> reject (fun (idx, _) -> idx = -1)
     |> Seq.map snd
+    
+let countWhere predicate = Seq.filter predicate >> Seq.length

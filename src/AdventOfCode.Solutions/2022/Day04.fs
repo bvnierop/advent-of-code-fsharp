@@ -4,16 +4,6 @@ open AdventOfCode.Lib.Solver
 open System
 
 module Day04 =
-    
-    // A range overlaps fully when the the lowest is lower
-    // and the highest is higher than the other (or eq)
-    //
-    // There is no guarantee that the ranges are given in any
-    // particular order.
-    
-    // Steps:
-    //   Split on "-" and ",". Take the four numbers as two ranges
-    //   Count overlapping
     let parse (line: string) =
         match line.Split([|',';'-'|]) with
         | [|a;b;c;d|] -> ((Int32.Parse(a), Int32.Parse(b)),
@@ -36,12 +26,10 @@ module Day04 =
     let solve1 (input: string list) =
         input
         |> List.map parse
-        |> List.filter (fun (r1, r2) -> isFullyOverlapping r1 r2)
-        |> List.length
+        |> List.countWhere (fun (r1, r2) -> isFullyOverlapping r1 r2)
     
     [<AocSolver(2022, 4, Level = 2)>]
     let solve2 (input: string list) =
         input
         |> List.map parse
-        |> List.filter (fun (r1, r2) -> not (isDisjoint r1 r2))
-        |> List.length
+        |> List.countWhere (fun (r1, r2) -> not (isDisjoint r1 r2))
