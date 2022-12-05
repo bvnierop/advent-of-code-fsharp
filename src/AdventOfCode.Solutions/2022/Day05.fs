@@ -36,14 +36,8 @@ module Day05 =
         | [containers;moves] -> (parseContainerLines containers, parseMoveLines moves)
         | _ -> failwith "Failed to parse"
         
-    let step (stacks: string list array) move =
-        let containers = List.take move.Count stacks[move.Src] |> List.rev
-        stacks
-        |> Array.updateAt move.Src (List.skip move.Count stacks[move.Src])
-        |> Array.updateAt move.Dst (List.append containers stacks[move.Dst])
-        
-    let step2 (stacks: string list array) move =
-        let containers = List.take move.Count stacks[move.Src]
+    let step reorder (stacks: string list array) move =
+        let containers = List.take move.Count stacks[move.Src] |> reorder
         stacks
         |> Array.updateAt move.Src (List.skip move.Count stacks[move.Src])
         |> Array.updateAt move.Dst (List.append containers stacks[move.Dst])
@@ -57,12 +51,12 @@ module Day05 =
     let solve1 (input: string list) =
         let (stacks, moves) = parseInput input
         moves
-        |> List.fold step stacks
+        |> List.fold (step List.rev) stacks
         |> getTopOfStacks
         
     [<AocSolver(2022, 5, Level = 2)>]
     let solve2 (input: string list) =
         let (stacks, moves) = parseInput input
         moves
-        |> List.fold step2 stacks
+        |> List.fold (step id) stacks
         |> getTopOfStacks
