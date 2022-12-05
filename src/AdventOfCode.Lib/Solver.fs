@@ -52,7 +52,7 @@ module Solver =
         match argumentType solver with
         | UnsupportedArgument t -> failwith $"Unsupported argument type for solver: {t}"
         | StringArgument -> input.Replace("\r\n", "\n") :> obj
-        | StringListArgument -> input.Replace("\r\n", "\n").Trim().Split("\n") |> Array.toList :> obj
+        | StringListArgument -> input.Replace("\r\n", "\n").TrimEnd().Split("\n") |> Array.toList :> obj
         
     let expectedResultOpt outFileName =
         try Some(System.IO.File.ReadAllText(outFileName))
