@@ -8,18 +8,14 @@ module Day05 =
         line.Replace("    ", " [-]")
             .Replace("[", " ")
             .Replace("]", " ")
-            .Split(" ", StringSplitOptions.RemoveEmptyEntries)
+            .Split(" ", StringSplitOptions.RemoveEmptyEntries) |> Array.toList
             
     let parseContainerLines (lines: string list) =
-        let asSegments = lines |> List.map parseContainerLine
-        let len = Array.length asSegments[0]
-        let stacks = Array.init len (fun _ -> [])
-        let filledStacks =
-            List.foldBack (fun (elt: string array) stacks ->
-                [0..len-1]
-                |> List.fold (fun stacks i -> Array.updateAt i (elt[i] :: stacks[i]) stacks) stacks)
-                asSegments stacks
-        Array.map (List.reject ((=) "-")) filledStacks
+        lines
+        |> List.map parseContainerLine
+        |> List.transpose
+        |> List.toArray
+        |> Array.map (List.reject ((=) "-"))
         
     type Move = {
         Count: int;
