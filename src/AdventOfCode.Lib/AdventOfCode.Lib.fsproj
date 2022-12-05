@@ -11,6 +11,12 @@
     <Compile Include="Set.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Int32.fs" />
+    <Compile Include="FParsec.fs" />
+    <Compile Include="String.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FParsec" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

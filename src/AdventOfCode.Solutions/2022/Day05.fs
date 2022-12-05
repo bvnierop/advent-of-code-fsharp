@@ -1,40 +1,35 @@
 namespace AdventOfCode.Solutions._2022
 
 open AdventOfCode.Lib.Solver
+open FParsec
 open System
 
 module Day05 =
-    let parseContainerLine (line: string) =
-        line.Replace("    ", " [-]")
-            .Replace("[", " ")
-            .Replace("]", " ")
-            .Split(" ", StringSplitOptions.RemoveEmptyEntries) |> Array.toList
-            
-    let parseContainerLines (lines: string list) =
-        lines
-        |> List.map parseContainerLine
-        |> List.transpose
-        |> List.toArray
-        |> Array.map (List.reject ((=) "-"))
-        
     type Move = {
         Count: int;
         Src: int;
         Dst: int;
     }
     
-    let parseMoveLine (line: string) =
-        match line.Split(" ") |> Array.choose Int32.parseOpt with
-        | [|count;src;dst|] -> { Count = count; Src = src - 1; Dst = dst - 1 }
-        | _ -> failwith $"Failed to parse move line: {line}"
+    let cratesToStacks crates =
+        crates
+        |> List.transpose
+        |> List.map (List.choose id)
+        |> List.toArray
         
-    let parseMoveLines (lines: string list) =
-        lines |> List.map parseMoveLine
-
-    let parseInput (lines: string list) =
-        match List.splitOnExclusive ((=) "") lines with
-        | [containers;moves] -> (parseContainerLines containers, parseMoveLines moves)
-        | _ -> failwith "Failed to parse"
+    let parseEmptyCrate = pstring "   " >>% None
+    let parseSingleCrate = (skipAnyChar >>. anyString 1 .>> skipAnyChar) |>> Some
+    let parseCrate = parseEmptyCrate <|> parseSingleCrate
+    let parseCrates = sepBy parseCrate (pchar ' ')
+    let parseCrateLine = parseCrates .>> skipNewline
+    let parseStacks = (manyTill parseCrateLine newline) |>> cratesToStacks
+    let parseMove =
+        pipe3 (skipString "move " >>. pint32)
+              (skipString " from " >>. pint32)
+              (skipString " to " >>. pint32)
+              (fun a b c -> {Count = a; Src = b - 1; Dst = c - 1})
+    let parseMoveLine = parseMove .>> (skipNewline <|> eof)
+    let parseInput =  parseStacks .>>. many parseMoveLine
         
     let step reorder (stacks: string list array) move =
         let containers = List.take move.Count stacks[move.Src] |> reorder
@@ -48,15 +43,15 @@ module Day05 =
         |> String.Concat
         
     [<AocSolver(2022, 5, Level = 1)>]
-    let solve1 (input: string list) =
-        let (stacks, moves) = parseInput input
+    let solve1 (input: string) =
+        let (stacks, moves) = parseOrDie parseInput input
         moves
         |> List.fold (step List.rev) stacks
         |> getTopOfStacks
         
     [<AocSolver(2022, 5, Level = 2)>]
-    let solve2 (input: string list) =
-        let (stacks, moves) = parseInput input
+    let solve2 (input: string) =
+        let (stacks, moves) = parseOrDie parseInput input
         moves
         |> List.fold (step id) stacks
         |> getTopOfStacks
