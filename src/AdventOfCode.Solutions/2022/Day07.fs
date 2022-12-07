@@ -15,6 +15,7 @@ module Day07 =
     let calculateSizes (lines: string list) =
         let handleLine (pwd, sizes) (line: string) = 
             match line.Split(" ") with
+            | [|"$"; "cd"; "/"|] -> (["/"], sizes)
             | [|"$"; "cd"; ".."|] -> (List.tail pwd, sizes)
             | [|"$"; "cd"; dirName|] -> (dirName :: pwd, sizes)
             | [|"$"; "ls"|] -> (pwd, sizes)
