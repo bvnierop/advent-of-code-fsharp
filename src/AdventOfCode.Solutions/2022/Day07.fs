@@ -12,6 +12,7 @@ module Day07 =
                 sizes
                 |> Map.change pwd (fun i -> Some (Option.defaultValue 0 i + size))
             updateSizes xs size updated
+            
     let calculateSizes (lines: string list) =
         let handleLine (pwd, sizes) (line: string) = 
             match line.Split(" ") with
