@@ -5,3 +5,5 @@ let parseOpt (str: string) =
     | (true, value) -> Some value
     | (false, _) -> None
         
+let parseChr (chr: char) = System.Int32.Parse($"{chr}")
+   

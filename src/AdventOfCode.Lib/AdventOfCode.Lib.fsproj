@@ -13,6 +13,7 @@
     <Compile Include="Int32.fs" />
     <Compile Include="FParsec.fs" />
     <Compile Include="String.fs" />
+    <Compile Include="Array2D.fs" />
   </ItemGroup>
 
   <ItemGroup>
