@@ -36,14 +36,9 @@ module Day09 =
     let solveForLength n input =
         let mutable visited = Set.empty
         let mutable rope = List.init n (fun _ -> (0, 0))
-        //let mutable head = (0, 0)
-        //let mutable tail = (0, 0)
         for line in input do
             let moves = parseLine line
             for (dx, dy) in moves do
-                //head <- (fst head + dx, snd head + dy)
-                //tail <- updateTail head tail
-                //visited <- Set.add tail visited
 
                 let (h::t) = rope
                 let nh = (fst h + dx, snd h + dy)
