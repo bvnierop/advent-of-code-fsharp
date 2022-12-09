@@ -15,23 +15,10 @@ module Day09 =
     let updateTail (hx, hy) (tx, ty) =
         let dx = hx - tx
         let dy = hy - ty
-
-        match (dx, dy) with
-        | (0, 0) | (0, 1) | (0, -1) | (1, 0) | (-1, 0)
-        | (1, 1) | (1, -1) | (-1, 1) | (-1, -1) -> (tx, ty)
-
-        | (0, 2) | (1, 2) | (-1, 2) -> (hx, hy - 1)
-        | (0, -2) | (1, -2) | (-1, -2) -> (hx, hy + 1)
-
-        | (2, 0) | (2, 1) | (2, -1) -> (hx - 1, hy)
-        | (-2, 0) | (-2, 1) | (-2, -1) -> (hx + 1, hy)
-
-        | (2, 2) -> (hx - 1, hy - 1)
-        | (-2, 2) -> (hx + 1, hy - 1)
-        | (2, -2) -> (hx - 1, hy + 1)
-        | (-2, -2) -> (hx + 1, hy + 1)
-
-        | _ -> failwith $"Failed to update: (({hx}, {hy}) - ({tx}, {ty}) -> {dx}, {dy})"
+        if abs dx > 1 || abs dy > 1 then
+            (tx + sign dx, ty + sign dy)
+        else
+            (tx, ty)
 
     let solveForLength n input =
         let mutable visited = Set.empty
