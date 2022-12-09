@@ -28,11 +28,10 @@ module Day09 =
             | _ -> rope
 
         input
-        |> List.map parseLine
-        |> Seq.concat
+        |> List.map parseLine |> Seq.concat
         |> Seq.scan executeMove rope
-        |> Seq.fold (fun s r -> Set.add (List.last r) s) Set.empty
-        |> Seq.length
+        |> Seq.map List.last
+        |> Set.ofSeq |> Set.length
     
     [<AocSolver(2022, 9, Level = 1)>]
     let solve1 (input: string list) =
