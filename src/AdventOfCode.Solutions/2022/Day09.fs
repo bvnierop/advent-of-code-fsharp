@@ -21,17 +21,18 @@ module Day09 =
             (tx, ty)
 
     let solveForLength n input =
-        let mutable visited = Set.empty
-        let mutable rope = List.init n (fun _ -> (0, 0))
-        for line in input do
-            let moves = parseLine line
-            for (dx, dy) in moves do
+        let rope = List.init n (fun _ -> (0, 0))
+        let executeMove rope (dx, dy) =
+            match rope with
+            | (hx, hy)::tail -> List.scan updateTail (hx + dx, hy + dy) tail
+            | _ -> rope
 
-                let (h::t) = rope
-                let nh = (fst h + dx, snd h + dy)
-                rope <- List.scan updateTail nh t
-                visited <- Set.add (List.last rope) visited
-        Seq.length visited
+        input
+        |> List.map parseLine
+        |> Seq.concat
+        |> Seq.scan executeMove rope
+        |> Seq.fold (fun s r -> Set.add (List.last r) s) Set.empty
+        |> Seq.length
     
     [<AocSolver(2022, 9, Level = 1)>]
     let solve1 (input: string list) =
