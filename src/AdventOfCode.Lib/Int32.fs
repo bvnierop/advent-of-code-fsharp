@@ -6,4 +6,6 @@ let parseOpt (str: string) =
     | (false, _) -> None
         
 let parseChr (chr: char) = System.Int32.Parse($"{chr}")
+
+let parse x = System.Int32.Parse(x)
    
