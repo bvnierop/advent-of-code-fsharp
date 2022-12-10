@@ -7,12 +7,12 @@
 
   <ItemGroup>
     <Compile Include="Solver.fs" />
-    <Compile Include="Seq.fs" />
     <Compile Include="Set.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Int32.fs" />
     <Compile Include="FParsec.fs" />
     <Compile Include="String.fs" />
+    <Compile Include="Seq.fs" />
     <Compile Include="Array2D.fs" />
   </ItemGroup>
 

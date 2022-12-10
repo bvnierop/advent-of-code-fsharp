@@ -23,3 +23,9 @@ let splitOnExclusive predicate source =
     |> Seq.map snd
     
 let countWhere predicate = Seq.filter predicate >> Seq.length
+
+let dump source =
+    source |> Seq.map (fun e -> $"{e}")
+    |> String.joinSeq "; "
+    |> (fun s -> printfn $"{{{s}}}")
+    source
