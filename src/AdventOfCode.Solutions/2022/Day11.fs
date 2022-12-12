@@ -7,7 +7,7 @@ module Day11 =
     
     type Monkey = {
         Items: int64 list
-        Operation: (string * int);
+        Operation: int64 -> int64
         Test: int;
         IfTrue: int;
         IfFalse: int;
@@ -17,8 +17,9 @@ module Day11 =
             str |> String.split |> Array.rev |> Array.take 2
         match finalTwoElements with
         | [|num; op|] ->
-            if num = "old" then ("exp", 2)
-            else (op, Int32.parse num)
+            if num = "old" then (fun n -> n * n)
+            elif op = "+" then ((+) (Int64.parse num))
+            else ((*) (Int64.parse num))
         | _ -> failwith $"Failed to parse operation: {str}"
         
     let parseMonkey (input: string list) =
@@ -49,15 +50,8 @@ module Day11 =
                 monkeys
                 |> Array.updateAt n { monkeys[n] with Items = List.append monkeys[n].Items [item] }
                 
-            let calculateWorry (operation: (string * int)) item =
-                match operation with
-                | ("*", n) -> item * int64 n
-                | ("+", n) -> item + int64 n
-                | ("exp", _) -> item * item
-                | _ -> failwith "We messed up big time here"
-                
             for item in monkey.Items do
-                let mutable worry = (calculateWorry monkey.Operation item)
+                let mutable worry = monkey.Operation item
                 worry <- worryControlFn worry
                 assert(worry >= 0L)
                 
