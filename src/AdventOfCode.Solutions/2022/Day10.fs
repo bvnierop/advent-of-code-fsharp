@@ -25,8 +25,7 @@ module Day10 =
         let xValues = xValues input
         
         [20;60;100;140;180;220]
-        |> Seq.map (fun n -> (n, xValues |> Seq.skip (n - 1) |> Seq.take 1 |> Seq.head))
-        |> Seq.map (fun (i, n) -> i * n)
+        |> Seq.map (fun n -> n * Seq.item (n - 1) xValues)
         |> Seq.sum
         
     [<AocSolver(2022, 10, Level = 2)>]
