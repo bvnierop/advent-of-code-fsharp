@@ -48,7 +48,6 @@ module Day10 =
         
         xValues
         |> Seq.scan update display
-        |> Seq.skip (Seq.length xValues - 1)
         |> Seq.last
         |> Array.splitInto 6
         |> Array.map String.Concat
