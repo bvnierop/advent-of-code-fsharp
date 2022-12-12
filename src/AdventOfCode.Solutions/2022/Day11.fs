@@ -28,14 +28,9 @@ module Day11 =
     let pMonkey =
         pIdentifier
         >>. pipe5 pItems pOp pTest pTrue pFalse (fun items op test t f -> {
-            Items = items;
-            Operation = op;
-            Test = test;
-            IfTrue = t;
-            IfFalse = f;
-        })
+                Items = items; Operation = op; Test = test; IfTrue = t; IfFalse = f;
+            })
     let pMonkeys = sepEndBy pMonkey pSkipEndOfLine |>> List.toArray
-    
     let parse str = parseOrDie pMonkeys str
         
     let solve rounds worryControlFn monkeys =
