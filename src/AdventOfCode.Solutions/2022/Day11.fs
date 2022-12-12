@@ -4,6 +4,7 @@ open AdventOfCode.Lib.Solver
 open System
 
 module Day11 =
+    open FParsec
     
     type Monkey = {
         Items: int64 list
@@ -12,33 +13,30 @@ module Day11 =
         IfTrue: int;
         IfFalse: int;
     }
-    let parseOperation (str: string) =
-        let finalTwoElements =
-            str |> String.split |> Array.rev |> Array.take 2
-        match finalTwoElements with
-        | [|num; op|] ->
-            if num = "old" then (fun n -> n * n)
-            elif op = "+" then ((+) (Int64.parse num))
-            else ((*) (Int64.parse num))
-        | _ -> failwith $"Failed to parse operation: {str}"
-        
-    let parseMonkey (input: string list) =
-        let lastAsInt str = str |> String.split |> Array.last |> Int32.parse
-        match input |> List.skip 1 with
-        | [items;operation;test;ifTrue;ifFalse] ->
-            {
-                Items = items |> String.splitOn [|':'|] |> Array.last |> String.splitOn [|','|] |> Array.map Int64.parse |> Array.toList;
-                Operation = parseOperation operation;
-                Test = lastAsInt test;
-                IfTrue = lastAsInt ifTrue;
-                IfFalse = lastAsInt ifFalse;
-            }
-        | _ -> failwith "Failed to parse monkey"
-        
-    let parseMonkeys (input: string list) =
-        input |> List.splitOnExclusive String.isNullOrWhiteSpace
-        |> List.map parseMonkey
-        |> List.toArray
+    
+    let pSkipEndOfLine = skipNewline <|> eof
+    let pIdentifier = pstring "Monkey " >>. pint32 >>. pstring ":" .>> pSkipEndOfLine
+    let pItems = (spaces >>. pstring "Starting items: ") >>. (sepBy <| pint64 <| pstring ", ") .>> pSkipEndOfLine
+    let pOp = spaces >>. pstring "Operation: new = old " >>. choice [
+        pstring "* old" >>% (fun i -> i * i) .>> pSkipEndOfLine;
+        pstring "* " >>. pint64 |>> (fun o -> (fun i -> i * o)) .>> pSkipEndOfLine;
+        pstring "+ " >>. pint64 |>> (fun o -> (fun i -> i + o)) .>> pSkipEndOfLine
+    ]
+    let pTest = spaces >>. pstring "Test: divisible by " >>. pint32 .>> pSkipEndOfLine
+    let pTrue = spaces >>. pstring "If true: throw to monkey " >>. pint32 .>> pSkipEndOfLine
+    let pFalse = spaces >>. pstring "If false: throw to monkey " >>. pint32 .>> pSkipEndOfLine
+    let pMonkey =
+        pIdentifier
+        >>. pipe5 pItems pOp pTest pTrue pFalse (fun items op test t f -> {
+            Items = items;
+            Operation = op;
+            Test = test;
+            IfTrue = t;
+            IfFalse = f;
+        })
+    let pMonkeys = sepEndBy pMonkey pSkipEndOfLine |>> List.toArray
+    
+    let parse str = parseOrDie pMonkeys str
         
     let solve rounds worryControlFn monkeys =
         let processMonkey index counts (monkeys: Monkey array) =
@@ -71,12 +69,12 @@ module Day11 =
         |> Array.sortDescending |> Array.take 2 |> Array.fold (*) 1L
         
     [<AocSolver(2022, 11, Level = 1)>]
-    let solve1 (input: string list) =
-        let monkeys = parseMonkeys input
+    let solve1 (input: string) =
+        let monkeys = parse input
         solve 20 (fun w -> w / 3L) monkeys
         
     [<AocSolver(2022, 11, Level = 2)>]
-    let solve2 (input: string list) =
-        let monkeys = parseMonkeys input
+    let solve2 (input: string) =
+        let monkeys = parse input
         let product = monkeys |> Array.map (fun m -> int64 m.Test) |> Array.fold (*) 1L
         solve 10000 (fun w -> w % product) monkeys
