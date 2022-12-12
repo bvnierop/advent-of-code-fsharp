@@ -48,7 +48,9 @@ module Day10 =
         
         xValues
         |> Seq.scan update display
-        |> Seq.last
+        |> Seq.skip (Seq.length xValues - 1)
+        |> Seq.take 1 |> Seq.head
+        // |> Seq.last
         |> Array.splitInto 6
         |> Array.map String.Concat
         |> String.joinSeq Environment.NewLine
