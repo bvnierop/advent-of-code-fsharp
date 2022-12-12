@@ -31,7 +31,7 @@ module Day12 =
                                 (newQ, newSeen)) <| (Queue.dequeue q, seen) <| (Array.neighbours <| p1 <| p2 <| grid)
                     loop newQ newSeen
                     
-        let q = Queue.enqueue (0, start) (Queue.empty ())
+        let q = Queue.enqueue (0, start) Queue.empty
         let seen = Set.add start Set.empty
         loop q seen
 
