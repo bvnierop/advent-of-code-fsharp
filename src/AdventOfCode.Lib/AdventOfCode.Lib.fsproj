@@ -17,6 +17,7 @@
     <Compile Include="Int64.fs" />
     <Compile Include="BigInt.fs" />
     <Compile Include="Array.fs" />
+    <Compile Include="Queue.fs" />
   </ItemGroup>
 
   <ItemGroup>
