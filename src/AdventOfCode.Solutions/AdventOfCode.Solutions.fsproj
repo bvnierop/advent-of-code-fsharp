@@ -26,6 +26,7 @@
         <Compile Include="2022\Day08.fs" />
         <Compile Include="2022\Day09.fs" />
         <Compile Include="2022\Day10.fs" />
+        <Compile Include="2022\Day11.fs" />
     </ItemGroup> <!-- Solutions -->
     
     <ItemGroup>
