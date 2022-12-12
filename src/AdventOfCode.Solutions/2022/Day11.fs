@@ -41,37 +41,34 @@ module Day11 =
         |> List.toArray
         
     let solve rounds worryControlFn monkeys =
-        let mutable counts = Array.create (Array.length monkeys) 0L
-        
-        let processMonkey index (monkeys: Monkey array) =
+        let processMonkey index counts (monkeys: Monkey array) =
             let monkey = monkeys[index]
-            let mutable m = monkeys
             let throwItem n item monkeys =
                 monkeys
                 |> Array.updateAt n { monkeys[n] with Items = List.append monkeys[n].Items [item] }
                 
-            for item in monkey.Items do
-                let mutable worry = monkey.Operation item
-                worry <- worryControlFn worry
-                assert(worry >= 0L)
+            let monkeysAfterThrowing =
+                List.fold (fun monkeys item ->
+                    let worry = worryControlFn <| monkey.Operation item
+                    assert(worry >= 0L)
+                    
+                    if worry % int64 monkey.Test = 0 then throwItem monkey.IfTrue worry monkeys
+                    else throwItem monkey.IfFalse worry monkeys) monkeys monkey.Items
                 
-                // Note: mark that the monkey has inspected an item
-                if worry % int64 monkey.Test = 0 then m <- throwItem monkey.IfTrue worry m
-                else m <- throwItem monkey.IfFalse worry m
-                
-            counts <- Array.updateAt index (counts[index] + (int64)(List.length m[index].Items)) counts
-            Array.updateAt index { m[index] with Items = [] } m
+            (counts |> Array.updateAt index (counts[index] + (int64)(List.length monkey.Items)),
+            Array.updateAt index { monkeysAfterThrowing[index] with Items = [] } monkeysAfterThrowing)
         
-        let rec round n monkeys =
-            if n = Array.length monkeys then monkeys
+        let rec round n counts monkeys =
+            if n = Array.length monkeys then (counts, monkeys)
             else
-                round <| n + 1 <| processMonkey n monkeys
+                round <| n + 1 <|| processMonkey n counts monkeys
             
-        let mutable m = monkeys
-        for i = 1 to rounds do
-            m <- round 0 m
-            
-        counts |> Array.sortDescending |> Array.take 2 |> Array.fold (*) 1L
+        let counts = Array.create (Array.length monkeys) 0L
+        
+        [1..rounds]
+        |> List.fold (fun (counts, monkeys) _ -> round 0 counts monkeys) (counts, monkeys)
+        |> fst
+        |> Array.sortDescending |> Array.take 2 |> Array.fold (*) 1L
         
     [<AocSolver(2022, 11, Level = 1)>]
     let solve1 (input: string list) =

@@ -17,8 +17,8 @@ module Day10 =
     let xValues input =
         input |> Seq.map expandCommand
         |> Seq.concat
-        |> Seq.toList
         |> Seq.scan (+) 1
+        |> Seq.butLast
         
     [<AocSolver(2022, 10, Level = 1)>]
     let solve1 (input: string list) =
@@ -49,8 +49,7 @@ module Day10 =
         xValues
         |> Seq.scan update display
         |> Seq.skip (Seq.length xValues - 1)
-        |> Seq.take 1 |> Seq.head
-        // |> Seq.last
+        |> Seq.last
         |> Array.splitInto 6
         |> Array.map String.Concat
         |> String.joinSeq Environment.NewLine

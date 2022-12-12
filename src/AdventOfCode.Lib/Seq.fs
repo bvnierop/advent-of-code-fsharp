@@ -29,3 +29,6 @@ let dump source =
     |> String.joinSeq "; "
     |> (fun s -> printfn $"{{{s}}}")
     source
+
+let butLast source =
+    Seq.take (Seq.length source - 1) source
