@@ -34,7 +34,7 @@ module Day11 =
     let parse str = parseOrDie pMonkeys str
         
     let solve rounds worryControlFn monkeys =
-        let processMonkey index counts (monkeys: Monkey array) =
+        let turn index counts (monkeys: Monkey array) =
             let monkey = monkeys[index]
             let throwItem n item monkeys =
                 monkeys
@@ -50,16 +50,15 @@ module Day11 =
                 
             (counts |> Array.updateAt index (counts[index] + (int64)(List.length monkey.Items)),
             Array.updateAt index { monkeysAfterThrowing[index] with Items = [] } monkeysAfterThrowing)
-        
-        let rec round n counts monkeys =
-            if n = Array.length monkeys then (counts, monkeys)
-            else
-                round <| n + 1 <|| processMonkey n counts monkeys
-            
+                
+        let rec round counts monkeys =
+            monkeys |> Array.indexed
+            |> Array.fold (fun (counts, monkeys) (n, _) -> turn n counts monkeys) (counts, monkeys)
+                
         let counts = Array.create (Array.length monkeys) 0L
         
         [1..rounds]
-        |> List.fold (fun (counts, monkeys) _ -> round 0 counts monkeys) (counts, monkeys)
+        |> List.fold (fun (counts, monkeys) _ -> round counts monkeys) (counts, monkeys)
         |> fst
         |> Array.sortDescending |> Array.take 2 |> Array.fold (*) 1L
         
