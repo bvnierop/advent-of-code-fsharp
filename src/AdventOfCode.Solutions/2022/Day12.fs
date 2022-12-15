@@ -10,6 +10,7 @@ module Day12 =
         | c -> Convert.ToInt32(c) - Convert.ToInt32('a')
         
     let parseLine line = line |> Array.map parseChr
+    
     let parse (input: string list) =
         let asArray = input |> List.map Seq.toArray |> List.toArray
         (Array.findIndex2D ((=) 'S') asArray, Array.findIndex2D ((=) 'E') asArray,
