@@ -85,8 +85,8 @@ module Day14 =
             if atY >= threshold then occupied
             else
                 let target =
-                    targets |> List.map (fun pt -> (pt, SetWithCount.contains pt occupied))
-                    |> List.tryFind (fun (pt, occ) -> occ = false)
+                    targets |> Seq.map (fun pt -> (pt, SetWithCount.contains pt occupied))
+                    |> Seq.tryFind (fun (pt, occ) -> occ = false)
                 match target with
                 | Some (pt, _) -> addSand occupied threshold pt
                 | None -> SetWithCount.add (atX, atY) occupied
