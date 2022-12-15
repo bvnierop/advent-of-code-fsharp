@@ -4,6 +4,22 @@ open AdventOfCode.Lib.Solver
 open FParsec
 open System
 
+module SetWithCount =
+    type t<'a when 'a: comparison> = Set<'a> * int
+    
+    let add item ((set, count): t<'a>) =
+        if Set.contains item set then (set, count)
+        else (Set.add item set, count + 1)
+        
+    let contains item ((set, _count): t<'a>) = Set.contains item set
+        
+    let size ((_set, count): t<'a>) = count
+    
+    let empty<'a> = (Set.empty, 0)
+    
+    let ofSeq seq = seq |> Seq.fold (fun s e -> add e s) empty
+    let toSeq ((set, _count): t<'a>) = set
+
 module Day14 =
     let pPoint = pint32 .>> pchar ',' .>>. pint32
     let pLine = sepBy pPoint (pstring " -> ")
@@ -58,27 +74,27 @@ module Day14 =
             input |> List.map parse
             |> List.map (List.pairwise >> List.map points >> Seq.concat)
             |> Seq.concat
-            |> Set.ofSeq
+            |> SetWithCount.ofSeq
             
-        let low = rocks |> Seq.maxBy snd |> snd
+        let low = rocks |> SetWithCount.toSeq |> Seq.maxBy snd |> snd
         
-        let rocksWithLowerLayer = [-100..1100] |> List.fold (fun occ x -> Set.add (x, low + 2) occ) rocks
+        let rocksWithLowerLayer = [-100..1100] |> List.fold (fun occ x -> SetWithCount.add (x, low + 2) occ) rocks
         
         let rec addSand occupied threshold (atX, atY) =
             let targets = [(atX, atY + 1); (atX - 1, atY + 1); (atX + 1, atY + 1)]
             if atY >= threshold then occupied
             else
                 let target =
-                    targets |> List.map (fun pt -> (pt, Set.contains pt occupied))
+                    targets |> List.map (fun pt -> (pt, SetWithCount.contains pt occupied))
                     |> List.tryFind (fun (pt, occ) -> occ = false)
                 match target with
                 | Some (pt, _) -> addSand occupied threshold pt
-                | None -> Set.add (atX, atY) occupied
+                | None -> SetWithCount.add (atX, atY) occupied
             
         let rec simulate occupied =
             let withSand = addSand occupied (low + 2) (500, 0)
-            if Set.count occupied = Set.count withSand then occupied
+            if SetWithCount.size occupied = SetWithCount.size withSand then occupied
             else simulate withSand
             
         let withSand = simulate rocksWithLowerLayer
-        Set.count withSand - Set.count rocksWithLowerLayer
+        SetWithCount.size withSand - SetWithCount.size rocksWithLowerLayer
