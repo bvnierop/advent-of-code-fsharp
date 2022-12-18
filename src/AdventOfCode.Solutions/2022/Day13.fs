@@ -35,12 +35,12 @@ module Day13 =
     pExprImpl.Value <- pValue <|> pList
     
     let parseList = List.map (parseOrDie pExpr)
-    let rightOrder expressions = expressions = List.sort expressions
+    let inRightOrder expressions = expressions = List.sort expressions
     
     [<AocSolver(2022, 13, Level = 1)>]
     let solve1 (input: string list) =
         input |> List.splitOnExclusive String.isNullOrEmpty
-        |> List.map (parseList >> rightOrder)
+        |> List.map (parseList >> inRightOrder)
         |> List.indexed
         |> List.filter (fun (_, b) -> b)
         |> List.map (fst >> ((+) 1))
