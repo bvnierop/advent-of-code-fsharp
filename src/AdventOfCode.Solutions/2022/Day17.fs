@@ -1,6 +1,5 @@
 namespace AdventOfCode.Solutions._2022
 
-open System.Drawing
 open AdventOfCode.Lib.Solver
 open System
 
@@ -31,7 +30,7 @@ module ListZipper =
         | _x::_xs -> rebuild <| prev (head, tail)
         | [] -> tail
         
-module FastCycle =
+module CircularCollection =
     type t<'a> = ('a array * int * int)
     
     let init (source: 'a seq) =
@@ -45,17 +44,9 @@ module FastCycle =
     let item ((source, index, _length): t<'a>) =
         source[index]
         
+    let index ((_source, index, _length): t<'a>) = index
+        
 module Day17 =
-    // We'll model both the rocks and the chamber by (lists of) integers.
-    // We're specifically interest in the binary representation of these integers.
-    // This makes it easy to check for collision. If X & Y != 0, then there's a
-    // collision.
-    //
-    // We use a custom library function, Seq.cyclic, for both cyclic lists.
-    
-    // Simulating, a newly spawned rock first performs the next four shifts.
-    // Then, it falls (if possible). Then it starts alternating shifting and falling.
-    // If it can no longer fall, it's done.
     module Tetris =
         type Rock = int list
         type Chamber = int list
@@ -118,28 +109,13 @@ module Day17 =
                 |> List.fold (fun chamber rock -> wall :: chamber) chamber
             (shiftedRock, wall :: wall :: wall :: extendedChamber)
             
-        let simulate rocks jets =
-            // grab a rock and spawn it
-            // apply the next four jet patterns
-            // then start alternating dropping and applying a jet pattern
-            // drop: overlap the tops with &&&. If the result is 0b100000001 then
-            //       we can indeed drop
-            // apply jet pattern:
-            //   bitshift _in the other direction_ since we're doing everything in reverse
-            //   and verify.
-            //   For the start we only have to verify against walls
-            //   That's easy: rock &&& 0b100000001 must be 0
-            //   To be fair, that's how we can always shift. shiftedRock &&& targetMask must be 0 for a shift to be possible
-            //
-            // We should probably just always simulate every step.
-            //  The current playing field should be line that has a rock in it OR the floor.
-            //  To spawn a rock we'll append three new lines to the playing field, plus the size of the rock.
-            //  And the rock itself
-            //
-            // So we have
-            let chamber = [floor]
-            // A step consists of applying a jet and falling down
-            //  first apply the jet
+        let heightMap (chamber: int list) =
+            let heightForIndex n =
+                chamber |> List.findIndex (fun line -> line &&& (1 <<< n) <> 0)
+            [7..-1..1]
+            |> List.map heightForIndex
+                         
+        let simulate (steps: int64) rocks jets =
             let applyJet jet rock =
                 let fn = match jet with | '<' -> (>>>) | '>' -> (<<<) | _ -> failwith "Invalid jet"
                 rock |> List.map (fun x -> fn x 1)
@@ -147,8 +123,6 @@ module Day17 =
             let isValidPosition rock chamber =
                 Seq.forall2 (fun r c -> r &&& c = 0) <| rock <| ListZipper.view chamber
                 
-            // In order to simulate we need to represent the chamber as a zipper
-            let chamberZipper = ListZipper.init chamber
             let tryFall chamber rock =
                 let nextChamberState = ListZipper.next chamber // should always work because we have a floor
                 if isValidPosition rock nextChamberState then Some nextChamberState
@@ -160,9 +134,9 @@ module Day17 =
                 else None
                 
             let tryStep chamber rock jets =
-                let shiftedRock = Option.defaultValue <| rock <| tryJet chamber (FastCycle.item jets) rock
+                let shiftedRock = Option.defaultValue <| rock <| tryJet chamber (CircularCollection.item jets) rock
                 let fallen = tryFall chamber <| shiftedRock
-                (Option.defaultValue chamber fallen, shiftedRock, FastCycle.moveNext jets, Option.isSome fallen)
+                (Option.defaultValue chamber fallen, shiftedRock, CircularCollection.moveNext jets, Option.isSome fallen)
                 
             let merge chamber rock =
                 chamber
@@ -175,32 +149,53 @@ module Day17 =
                 
             let simulateOneRock chamber rocks jets =
                 let rec doSimulate chamber rock jets =
-                    // printProgress chamber rock
                     let (newChamber, newRock, newJets, success) = tryStep chamber rock jets
                     if success then doSimulate newChamber newRock newJets
-                    else (merge chamber newRock, FastCycle.moveNext rocks, newJets)
-                let (rock, chamber) = spawn (FastCycle.item rocks) chamber
+                    else (merge chamber newRock, CircularCollection.moveNext rocks, newJets)
+                let (rock, chamber) = spawn (CircularCollection.item rocks) chamber
                 doSimulate <| ListZipper.init chamber <| rock <| jets
                 
-            let rockCycle = FastCycle.init rocks
-            let jetCycle = FastCycle.init jets
-            
-            // let (c1, r1, j1) = simulateOneRock chamber rockCycle jetCycle
-            // let (c2, r2, j2) = simulateOneRock c1 r1 j1
-            // print c1
-            // print c2
+            let rockCycle = CircularCollection.init rocks
+            let jetCycle = CircularCollection.init jets
             
             let simulateMultipleRocks chamber rocks jets n =
-                [1..n]
-                |> List.fold (fun (c, r, j) _i -> simulateOneRock c r j) (chamber, rocks, jets)
+                {1..n}
+                |> Seq.scan (fun (c, r, j) _i -> simulateOneRock c r j) (chamber, rocks, jets)
                     
-            simulateMultipleRocks chamber rockCycle jetCycle 2022
-            |> (fun (c, _, _) -> List.length c - 1)
+            let mutable cache: Map<(int list * int * int), (int * int)> = Map.empty
+            let emptyCache (): Map<(int list * int * int), (int * int)> = Map.empty
+            let cacheKey chamber rocks jets = (heightMap chamber, CircularCollection.index rocks, CircularCollection.index jets)
+            let inCache chamber rocks jets cache = Map.containsKey (cacheKey chamber rocks jets) cache
+            let addToCache index chamber rocks jets cache = Map.add (cacheKey chamber rocks jets) (index, List.length chamber) cache
+            let cacheValue chamber rocks jets (cache: Map<(int list * int * int), (int * int)>) = cache[cacheKey chamber rocks jets]
+            
+            let findCycle () =
+                let rec loop cache index (chamber, rocks, jets) =
+                    let (c, r, j) = simulateOneRock chamber rocks jets
+                    if not (inCache c r j cache) then loop <| addToCache index c r j cache <| index + 1 <| (c, r, j)
+                    else let curHeight = List.length c
+                         let (cachedIndex, cachedHeight) = cacheValue c r j cache
+                         (cachedIndex, index - cachedIndex, curHeight - cachedHeight)
+                loop <| emptyCache () <| 1 <| ([floor], rockCycle, jetCycle)
+                
+            let (cStart, cLength, cHeight) = findCycle ()
+            
+            let pre = cStart
+            let cycles = (steps - int64 cStart) / int64 cLength
+            let post = int32 <| (steps - int64 cStart) % int64 cLength
+            
+            let heightFromCycles = cycles * int64 cHeight
+            
+            let smallSeq = pre + post
+            simulateMultipleRocks [floor] rockCycle jetCycle smallSeq
+            |> Seq.last
+            |> (fun (c, _, _) -> int64 <| List.length c - 1)
+            |> ((+) heightFromCycles)
         
     [<AocSolver(2022, 17, Level = 1)>]
     let solve1 (input: string) =
-        Tetris.simulate Tetris.rocks (input.Trim())
+        Tetris.simulate 2022L Tetris.rocks (input.Trim())
         
     [<AocSolver(2022, 17, Level = 2)>]
     let solve2 (input: string) =
-        2
+        Tetris.simulate 1000000000000L Tetris.rocks (input.Trim())

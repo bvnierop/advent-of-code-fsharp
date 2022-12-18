@@ -33,21 +33,8 @@ let dump source =
 let butLast source =
     Seq.take (Seq.length source - 1) source
 
-/// Turns the `source` sequence into a cyclic sequence
-let cyclic source =
-    let rec next () = seq {
-        for e in source do yield e
-        yield! next ()
-    }
-    next ()
-    
-let cyclic2 source =
-    let original = Seq.toList source
-    match original with
-    | head::tail ->
-        Seq.unfold (fun remaining ->
-            match remaining with
-            | x::xs -> Some (x, xs)
-            | [] -> Some (head, tail)) original
-    | _ -> []
-    
+let foldWhile folder initial source =
+    source |> Seq.scan (fun stateOpt elt ->
+        stateOpt |> Option.bind (fun state -> folder state elt)) (Some initial)
+    |> Seq.takeWhile Option.isSome
+    |> Seq.last |> Option.get
