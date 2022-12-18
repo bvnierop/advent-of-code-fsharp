@@ -23,3 +23,10 @@ let splitOnExclusive predicate source =
     |> List.map snd
     
 let countWhere predicate = List.filter predicate >> List.length
+    
+let rec pairs list = seq {
+    match list with
+    | x::xs -> for e in xs do yield (x, e)
+               yield! pairs xs
+    | _ -> ()
+}
