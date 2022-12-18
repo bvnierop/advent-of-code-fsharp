@@ -162,7 +162,6 @@ module Day17 =
                 {1..n}
                 |> Seq.scan (fun (c, r, j) _i -> simulateOneRock c r j) (chamber, rocks, jets)
                     
-            let mutable cache: Map<(int list * int * int), (int * int)> = Map.empty
             let emptyCache (): Map<(int list * int * int), (int * int)> = Map.empty
             let cacheKey chamber rocks jets = (heightMap chamber, CircularCollection.index rocks, CircularCollection.index jets)
             let inCache chamber rocks jets cache = Map.containsKey (cacheKey chamber rocks jets) cache
