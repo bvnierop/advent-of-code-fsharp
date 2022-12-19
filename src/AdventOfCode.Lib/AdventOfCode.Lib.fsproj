@@ -18,6 +18,7 @@
     <Compile Include="BigInt.fs" />
     <Compile Include="Array.fs" />
     <Compile Include="Queue.fs" />
+    <Compile Include="HashSet.fs" />
   </ItemGroup>
 
   <ItemGroup>
