@@ -10,6 +10,19 @@ module Day14 =
     let pLine = sepBy pPoint (pstring " -> ")
     let parse str = parseOrDie pLine str
     
+    let rec addSand (rocksA: bool[,]) threshold (atX, atY) =
+        let targets = [| [|atX; atY + 1|]; [|atX - 1; atY + 1|]; [|atX + 1; atY + 1|] |]
+        if atY >= threshold || rocksA[500,0] then false
+        else
+            let mutable found = false
+            let mutable i = 0
+            while not found && i < 3 do
+                found <- not rocksA[targets[i][0],targets[i][1]]
+                if not found then i <- i + 1
+                
+            if found then addSand rocksA threshold (targets[i][0],targets[i][1])
+            else Array2D.set rocksA atX atY true; true
+                
     let solver (input: string list) modifyFn =
         let points ((x1, y1), (x2, y2)) = seq {
             for x = min x1 x2 to max x1 x2 do
@@ -25,25 +38,17 @@ module Day14 =
             
         let preppedRocks = modifyFn rocks
         
-        let rec addSand occupied threshold (atX, atY) =
-            let targets = [(atX, atY + 1); (atX - 1, atY + 1); (atX + 1, atY + 1)]
-            if atY >= threshold then occupied
-            else
-                let target =
-                    targets |> Seq.map (fun pt -> (pt, HashSet.contains pt occupied))
-                    |> Seq.tryFind (fun (pt, occ) -> occ = false)
-                match target with
-                | Some (pt, _) -> addSand occupied threshold pt
-                | None -> HashSet.add (atX, atY) occupied
+        let rocksA = Array2D.initBased -100 0 1201 200 (fun i j -> false)
+        for (x, y) in preppedRocks do rocksA[x,y] <- true
+            
             
         let low = preppedRocks |> Seq.maxBy snd |> snd
-        let rec simulate occupied =
-            let withSand = addSand occupied low (500, 0)
-            if HashSet.size occupied = HashSet.size withSand then occupied
-            else simulate withSand
+        let rec simulate count =
+            let added = addSand rocksA low (500, 0)
+            if not added then count
+            else simulate <| count + 1
             
-        let withSand = simulate preppedRocks
-        HashSet.size withSand - HashSet.size preppedRocks
+        simulate 0
         
     [<AocSolver(2022, 14, Level = 1)>]
     let solve1 (input: string list) =
