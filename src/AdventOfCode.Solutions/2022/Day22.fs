@@ -141,18 +141,6 @@ module Day22 =
                 if spaceCount = 1 then corners <- (x,y) :: corners
         corners
         
-    // From an inner corner we want to walk in the clockwise or counter clockwise direction. We want to start on the actual corner
-    // and then move in both directions.
-    //      Example. ' #'
-    //               '##' -> Clockwise = Dir 3, Counter = Dir 2. Note that there are 12 possibilities
-    // Four types of inner corner, four types of outer corner, four types of straight.
-    //  The tricky part here is that we want to always _look_ at the outside, so that there's a space in our matching pattern.
-    //  These are also the points we want to map. End up at a point like that and we want to teleport somewhere else on the 2D map.
-    //  This mapping is based on a heading (for the SPACE in an inner corner there are two ways to get there).
-    //  For example, for (7, 3) in the sample input, we can enter it both < and ^, and if we do, we exit it v and > respectively.
-    //    Let's see if I can wrap my head around this
-    // And let's assume that first case, 7,3 in the example input
-    //
     //  In order to stitch, for both clockwise and counter clockwise, we will look at a 2x2 area, so that we always look
     //  at the filled edge and the empty edge. We then stitch them up. We want the location to map to be the empty edge, so we need an offset.
     //    For example, if the edge we look at is ' .', then the offset is 0, but if the edge we look at is '. ' then it's +1
