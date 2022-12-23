@@ -31,6 +31,8 @@ module ListZipper =
         | [] -> tail
         
 module CircularCollection =
+    let modE a b = ((a % b) + b) % b
+    
     type t<'a> = ('a array * int * int)
     
     let init (source: 'a seq) =
@@ -38,13 +40,19 @@ module CircularCollection =
         (asArray, 0, Array.length asArray)
         
     let moveNext ((source, index, length): t<'a>) =
-        let nextIndex = (index + 1) % length
+        let nextIndex = modE (index + 1) length
         (source, nextIndex, length)
         
     let item ((source, index, _length): t<'a>) =
         source[index]
         
+    let itemAt at ((source, index, length): t<'a>) =
+        let idx = modE (index + at) length
+        source[idx]
+        
     let index ((_source, index, _length): t<'a>) = index
+    
+    let length ((_source, _index, length): t<'a>) = length
         
 module Day17 =
     module Tetris =
