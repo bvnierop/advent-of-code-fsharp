@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
@@ -37,6 +37,7 @@
         <Compile Include="2022\Day19.fs" />
         <Compile Include="2022\Day20.fs" />
         <Compile Include="2022\Day21.fs" />
+        <Compile Include="2022\Day22.fs" />
     </ItemGroup> <!-- Solutions -->
     
     <ItemGroup>
