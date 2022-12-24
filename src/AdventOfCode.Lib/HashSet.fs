@@ -10,3 +10,4 @@ let remove item (set: 'a t) = set.Remove(item)
 let contains item (set: 'a t) = set.Contains(item)
 let ofSeq seq = seq |> Seq.fold (fun s e -> add e s) empty
 let toSeq (set: t<'a>): 'a seq = set
+let except other (set: t<'a>) = set.Except(other)

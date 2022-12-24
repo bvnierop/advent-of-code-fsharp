@@ -97,16 +97,16 @@ module Day24 =
         
     let inline encode x y t = (x <<< 20) ||| (y <<< 10) ||| t
         
-    let memo3 f =
+    let memo4 f =
         let mutable cache = MutableHashMap.empty
-        let memoized a b c =
+        let memoized a b c v =
             let key = encode a b c
             if not (MutableHashMap.containsKey key cache) then
-                cache <- MutableHashMap.add key <| f a b c <| cache
+                cache <- MutableHashMap.add key <| f a b c v <| cache
             cache[key]
         memoized
         
-    let countBlizzards = memo3 countBlizzards'
+    let countBlizzards = memo4 countBlizzards'
         
     let noBlizzard x y time valley =
         countBlizzards x y time valley = 0
@@ -123,7 +123,6 @@ module Day24 =
                 else printf "."
             printfn ""
         printfn ""
-        
         
     let search (startX, startY) startTime (finishX, finishY) valley =
         let start = (startX, startY, startTime)
@@ -150,23 +149,61 @@ module Day24 =
         printfn $"Finished search. Seen {HashSet.size seen} different states."
         res
         
+    let search2 start goals valley =
+        let walls =
+            seq {
+                for y = -1 to valley.Height do
+                    for x = -1 to valley.Width do
+                        if x < 0 || y < 0 || x = valley.Width || y = valley.Height then yield (x-1, y-1)
+                        else if valley.Grid[y].[x] = '#' then yield (x-1, y-1)
+            } |> HashSet.ofSeq
+        let blizzards = seq {
+            for y = 0 to valley.Height - 1 do
+                for x = 0 to valley.Width - 1 do
+                    let c = valley.Grid[y].[x] 
+                    if c = '^' then yield (x-1, y-1, 0, -1)
+                    if c = 'v' then yield (x-1, y-1, 0, 1)
+                    if c = '>' then yield (x-1, y-1, 1, 0)
+                    if c = '<' then yield (x-1, y-1, -1, 0)
+        }
+        let bh = valley.Height - 2
+        let bw = valley.Width - 2
         
+        let rec loop time positions goals =
+            match goals with
+            | [] -> time - 1
+            | x::xs ->
+                let neighbours =
+                    positions
+                    |> Seq.collect (fun (x, y) -> {0..4} |> Seq.map (fun d -> (x + dx[d], y + dy[d])))
+                    |> HashSet.ofSeq
                     
+                let blizzardPositions =
+                    blizzards
+                    |> Seq.map (fun (bx, by, bdx, bdy) -> (bx + bdx * time) |> Math.modE <| bw, (by + bdy * time) |> Math.modE <| bh)
+                    |> HashSet.ofSeq
+                
+                let nextPositions =
+                    neighbours
+                    |> HashSet.except blizzardPositions
+                    |> HashSet.except walls
+                    
+                if HashSet.contains x nextPositions then loop <| time + 1 <| ([x] |> HashSet.ofSeq) <| xs
+                else loop <| time + 1 <| nextPositions <| goals
+                
+        loop 0 <| ([start] |> HashSet.ofSeq) <| goals
+                
     [<AocSolver(2022, 24, Level = 1)>]
     let solve1 (input: string list) =
         let valley = parseValley input
-        let start = (1, 0)
-        let finish = (valley.Width - 2, valley.Height - 1)
-        search start 0 finish valley |> Option.defaultValue -1
+        let start = (0, -1)
+        let finish = (valley.Width - 3, valley.Height - 2)
+        search2 start [finish] valley
     
-        
     [<AocSolver(2022, 24, Level = 2)>]
     let solve2 (input: string list) =
         let valley = parseValley input
-        let start = (1, 0)
-        let finish = (valley.Width - 2, valley.Height - 1)
-        let timeToFinish = search start 0 finish valley |> Option.defaultValue -1
-        let timeToStart = search finish timeToFinish start valley |> Option.defaultValue -1
-        let timeToFinishAgain = search start timeToStart finish valley |> Option.defaultValue -1
-        timeToFinishAgain
+        let start = (0, -1)
+        let finish = (valley.Width - 3, valley.Height - 2)
+        search2 start [finish; start; finish] valley
         
