@@ -90,7 +90,6 @@ module Day17 =
                 printfn ""
             printfn ""
                 
-                
         let rocks = [
             [0b1111]
             [0b010
