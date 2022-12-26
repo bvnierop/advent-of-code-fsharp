@@ -25,8 +25,7 @@ module Day18 =
             input
             |> List.map parseLine
             |> List.pairs
-            |> Seq.filter (fun (p1, p2) -> isConnected p1 p2)
-            |> Seq.length
+            |> Seq.countWhere (fun (p1, p2) -> isConnected p1 p2)
             
         List.length input * 6 - blockedSides * 2
         
