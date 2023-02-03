@@ -65,7 +65,7 @@ module Solver =
               else printfn $"FAILED! Expected `{expected}`, but got `{result}`.")
         
     let runSolver (rawInput: string) outFileName solver =
-        printfn $"Running solver for {solver.Year}-12-{solver.Day:D2}, level {solver.Level}."
+        printfn $"Running solver for {solver.Year}-12-{solver.Day:D2}, level {solver.Level}: {solver.Method.Name}."
         
         let processedInput = convertInput rawInput solver
         
