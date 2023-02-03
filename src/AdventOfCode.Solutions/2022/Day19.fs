@@ -5,11 +5,6 @@ open AdventOfCode.Lib.Solver
 open System
 open FParsec
 
-// Solution direction p1
-//  1. Parse input, store in a blueprint type
-//  2. For each blueprint, run dfs
-//  3. dfs: for each minute, make possible choices
-
 type Blueprint =
     { Id: int
       OreRobotCost: int
@@ -65,13 +60,13 @@ let maxClay blueprint = blueprint.ObsidianRobotCost |> snd
 let maxObsidian blueprint = blueprint.GeodeRobotCost |> snd
 
 let spawnOreRobot blueprint robots inventory =
-    if robots.OreRobots < (maxOre blueprint) && blueprint.OreRobotCost <= inventory.Ore then
+    if blueprint.OreRobotCost <= inventory.Ore then
          Some ({ robots with OreRobots = robots.OreRobots + 1 },
          { inventory with Ore = inventory.Ore - blueprint.OreRobotCost })
     else None
 
 let spawnClayRobot blueprint robots inventory =
-    if robots.ClayRobots < (maxClay blueprint) && blueprint.ClayRobotCost <= inventory.Ore then
+    if blueprint.ClayRobotCost <= inventory.Ore then
          Some ({ robots with ClayRobots = robots.ClayRobots + 1 },
          { inventory with Ore = inventory.Ore - blueprint.ClayRobotCost })
     else None
@@ -80,7 +75,7 @@ let spawnClayRobot blueprint robots inventory =
 let spawnObsidianRobot blueprint robots inventory =
     let (oreCost, clayCost) = blueprint.ObsidianRobotCost
 
-    if robots.ObsidianRobots < (maxObsidian blueprint) && oreCost <= inventory.Ore && clayCost <= inventory.Clay then
+    if oreCost <= inventory.Ore && clayCost <= inventory.Clay then
         Some (
          { robots with ObsidianRobots = robots.ObsidianRobots + 1 },
          { inventory with
@@ -105,60 +100,45 @@ let updateInventory robotCounts inventory =
         Clay = inventory.Clay + robotCounts.ClayRobots
         Obsidian = inventory.Obsidian + robotCounts.ObsidianRobots
         Geodes = inventory.Geodes + robotCounts.GeodeRobots }
-    
-let canMakeAllRobots blueprint inventory =
-    let (obsidianOre, obsidianClay) = blueprint.ObsidianRobotCost
-    let (geodeOre, geodeObsidian) = blueprint.GeodeRobotCost
-    blueprint.OreRobotCost <= inventory.Ore &&
-    blueprint.ClayRobotCost <= inventory.Ore &&
-    obsidianOre <= inventory.Ore &&
-    geodeOre <= inventory.Ore &&
-    obsidianClay <= inventory.Clay &&
-    geodeObsidian <= inventory.Obsidian
                                
-let random seed =
-    let rnd = new Random(seed)
-    (fun () -> rnd.Next(1, 101))
-    
-let attempt minutes blueprint random =
-    let thingsToTry = [
-        (spawnGeodeRobot, 100)
-        (spawnObsidianRobot, 80)
-        (spawnClayRobot, 50)
-        (spawnOreRobot, 80)
-        ((fun b r i -> Some (r, i)), 100)
+let simulate blueprint minutes =
+    let generateChoices robots = [
+        if robots.OreRobots < maxOre blueprint then spawnOreRobot
+        if robots.ClayRobots < maxClay blueprint then spawnClayRobot
+        if robots.ClayRobots > 0 && robots.ObsidianRobots < maxObsidian blueprint then spawnObsidianRobot
+        if robots.ObsidianRobots > 0 then spawnGeodeRobot
     ]
     
-    let rec loop t inventory robots =
-        if t = minutes then inventory.Geodes
+    let bestPossible t inventory robots =
+        let rem = minutes - t
+        let tr = (rem * (rem - 1)) / 2
+        rem * robots.GeodeRobots + tr + inventory.Geodes
+    
+    let rec loop t inventory robots nextRobot bestSoFar =
+        if t = minutes then max bestSoFar inventory.Geodes
         else
-            let (robotsAfterSpawning, inventoryAfterSpawning) =
-                thingsToTry
-                |> List.map (fun (spawner, odds) ->
-                    let num = random ()
-                    if num <= odds then spawner blueprint robots inventory
-                    else None)
-                |> List.pick id
-            let inventoryAfterHarvest = updateInventory robots inventoryAfterSpawning
-            loop <| t + 1 <| inventoryAfterHarvest <| robotsAfterSpawning
-    loop 0 emptyInventory initialRobotCounts
-
-let attemptOften attempts minutes blueprint =
-    let randomizer = random 0
-    [0..attempts]
-    |> List.map (fun i -> attempt minutes blueprint randomizer)
-    |> List.max
-
+            if bestPossible t inventory robots < bestSoFar then bestSoFar
+            else
+                match nextRobot with
+                | None ->
+                    generateChoices robots
+                    |> List.scan (fun bestSoFar spawner -> loop t inventory robots (Some spawner) bestSoFar) bestSoFar
+                    |> List.max
+                | Some spawner ->
+                    match spawner blueprint robots inventory with
+                    | None -> loop <| t + 1 <| updateInventory robots inventory <| robots <| Some spawner <| bestSoFar
+                    | Some (robotsIncludingNew, inventory) -> loop <| t + 1 <| updateInventory robots inventory <| robotsIncludingNew <| None <| bestSoFar
+    loop 0 emptyInventory initialRobotCounts None -1
+    
 [<AocSolver(2022, 19, Level = 1)>]
-let solve1 (input: string list) =
+let solve1 (input: string List) =
     input |> List.map pLine
-    |> List.map (fun bp -> attemptOften 25000 24 bp * bp.Id)
+    |> List.map (fun bp -> simulate bp 24 * bp.Id)
     |> List.sum
 
 [<AocSolver(2022, 19, Level = 2)>]
 let solve2 (input: string list) =
     input |> List.map pLine
     |> List.take (min <| List.length input <| 3)
-    |> List.map (attemptOften 200000 32)
+    |> List.map (fun bp -> simulate bp 32)
     |> List.reduce (*)
-
