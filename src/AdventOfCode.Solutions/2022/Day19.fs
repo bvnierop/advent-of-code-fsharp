@@ -110,9 +110,9 @@ let simulate blueprint minutes =
     ]
     
     let bestPossible t inventory robots =
-        let rem = minutes - t
-        let tr = (rem * (rem - 1)) / 2
-        rem * robots.GeodeRobots + tr + inventory.Geodes
+        let remainingMinutes = minutes - t - 1
+        let maxExtraGeodes = (remainingMinutes * (remainingMinutes + 1)) / 2
+        (remainingMinutes + 1) * robots.GeodeRobots + maxExtraGeodes + inventory.Geodes
     
     let rec loop t inventory robots nextRobot bestSoFar =
         if t = minutes then max bestSoFar inventory.Geodes
