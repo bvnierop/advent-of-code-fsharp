@@ -26,7 +26,7 @@ module Solver =
         else UnsupportedArgument(paramType)
 
     type AocSolverAttribute(year: int, day: int) =
-        inherit System.Attribute()
+        inherit Attribute()
         member val Year: int = year with get
         member val Day: int = day with get
         member val Level: int = 0 with get, set
@@ -55,7 +55,7 @@ module Solver =
         | StringListArgument -> input.Replace("\r\n", "\n").TrimEnd().Split("\n") |> Array.toList :> obj
         
     let expectedResultOpt outFileName =
-        try Some(System.IO.File.ReadAllText(outFileName))
+        try Some(IO.File.ReadAllText(outFileName).TrimEnd('\r', '\n'))
         with | _ -> None
         
     let reportResultStatus (result: string) (expectedOpt: string option) =
@@ -69,14 +69,14 @@ module Solver =
         
         let processedInput = convertInput rawInput solver
         
-        let sw = new System.Diagnostics.Stopwatch()
+        let sw = new Diagnostics.Stopwatch()
         sw.Start()
         let result = solver.Method.Invoke(null, [|processedInput|])
         sw.Stop()
         
         printfn $"{result}"
         reportResultStatus $"{result}" (expectedResultOpt outFileName)
-        printfn $"Solver ran in {sw.Elapsed}.{System.Environment.NewLine}"
+        printfn $"Solver ran in {sw.Elapsed}.{Environment.NewLine}"
         
     let outFileName inFileOpt (solver: Solver) =
         match inFileOpt with
@@ -96,5 +96,5 @@ module Solver =
                 | None -> $"input/{year}/{day:D2}.in"
                 | Some f -> $"input/{year}/{day:D2}-{f}.in"
                 
-            let input = System.IO.File.ReadAllText(inFile)
+            let input = IO.File.ReadAllText(inFile)
             Array.iter (fun s -> runSolver input (outFileName inFileOpt s) s) daySolvers
