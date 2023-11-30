@@ -20,6 +20,20 @@ module Day{day:D2} =
         2
     ".Trim()
 
+let testFileTemplate year day =
+    @$"
+module AdventOfCode.Test._{year}.Day{day:D2}
+
+open System
+open Xunit
+open Swensen.Unquote
+open AdventOfCode.Solutions._{year}.Day{day:D2}
+
+[<Fact>]
+let ``Day{day:D2}`` () =
+    test <@ true = true @>
+    ".Trim()
+
 let loadSession () =
     System.IO.File.ReadAllText(".session")
 
@@ -39,6 +53,8 @@ let writeFile file content =
     
 let addFileToProject path prjFile =
     // Load project file
+    let contains (find: System.String) (str: System.String) = str.Contains(find)
+
     let lines = System.IO.File.ReadAllLines(prjFile)
     let pathLine = $"        <Compile Include=\"{path}\" />"
     
@@ -46,12 +62,12 @@ let addFileToProject path prjFile =
         printfn $"{path} already part of project {prjFile}"
     else
         printfn $"Add {path} to project {prjFile}"
-        let openingLine = "    <ItemGroup> <!-- Solutions -->"
-        let closingLine = "    </ItemGroup> <!-- Solutions -->"
+        let openingLine = " <ItemGroup> <!-- Solutions -->"
+        let closingLine = " </ItemGroup> <!-- Solutions -->"
         
         // get the LAST item group
-        let (preamble, rest) = Array.splitAt (Array.findIndexBack ((=) openingLine) lines) lines
-        let (middle, postamble) = Array.splitAt (Array.findIndexBack ((=) closingLine) rest) rest
+        let (preamble, rest) = Array.splitAt (Array.findIndexBack (contains openingLine) lines) lines
+        let (middle, postamble) = Array.splitAt (Array.findIndexBack (contains closingLine) rest) rest
         
         let compiles = Array.sort (Array.append (Array.skip 1 middle) [|pathLine|])
         
@@ -66,28 +82,37 @@ let addFileToProject path prjFile =
         
         System.IO.File.WriteAllLines(prjFile, newLines)
 
-let prep year day =
-    // Create directories
-    let subFolder = $"{year}"
-    ensureDir $"input/{subFolder}"
-    ensureDir $"src/AdventOfCode.Solutions/{subFolder}"
-    
-    // Download infile
+let downloadInput year day =
     let aocClient = RestService.For<IAdventOfCodeClient>("https://adventofcode.com")
     let session = loadSession ()
-    let input = aocClient.GetInput(year, day, session)
+    aocClient.GetInput(year, day, session)
+
+
+let createInputFile year day =
+    ensureDir $"input/{year}"
+    downloadInput year day
+    |> overwriteFile $"input/{year}/{day:D2}.in"
+
+let createSolutionFile year day =
+    ensureDir $"src/AdventOfCode.Solutions/{year}"
+    let srcFile = $"src/AdventOfCode.Solutions/{year}/Day{day:D2}.fs"
+    writeFile srcFile (sourceFileTemplate year day)
+    addFileToProject $"{year}\\Day{day:D2}.fs" "src/AdventOfCode.Solutions/AdventOfCode.Solutions.fsproj"
+
+let createTestStubs year day =
     let inFilePfx = $"input/{year}/{day:D2}"
-    overwriteFile $"{inFilePfx}.in" input
-    
-    // Create test infile and outfiles
     writeFile $"{inFilePfx}-test.in" ""
     writeFile $"{inFilePfx}-test-1.out" ""
     writeFile $"{inFilePfx}-test-2.out" ""
-    
-    // Create file template
-    let srcFile = $"src/AdventOfCode.Solutions/{year}/Day{day:D2}.fs"
-    writeFile srcFile (sourceFileTemplate year day)
-    
-    // Add to project?
-    addFileToProject $"{year}\\Day{day:D2}.fs" "src/AdventOfCode.Solutions/AdventOfCode.Solutions.fsproj"
-    ()
+
+let createUnitTestFile year day =
+    ensureDir $"test/AdventOfCode.Test/{year}"
+    let srcFile = $"test/AdventOfCode.Test/{year}/Day{day:D2}.fs"
+    writeFile srcFile (testFileTemplate year day)
+    addFileToProject $"{year}\\Day{day:D2}.fs" "test/AdventOfCode.Test/AdventOfCode.Test.fsproj"
+
+let prep year day =
+    createInputFile year day
+    createSolutionFile year day
+    createTestStubs year day
+    createUnitTestFile year day
