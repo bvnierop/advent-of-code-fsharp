@@ -38,3 +38,11 @@ let foldWhile folder initial source =
         stateOpt |> Option.bind (fun state -> folder state elt)) (Some initial)
     |> Seq.takeWhile Option.isSome
     |> Seq.last |> Option.get
+
+let repeat fn initial =
+    Seq.unfold (fun state ->
+                Some (state, fn state)) initial
+
+let repeat2 fn initial =
+    Seq.unfold (fun state ->
+                Some (state, fn state)) (fn initial)
