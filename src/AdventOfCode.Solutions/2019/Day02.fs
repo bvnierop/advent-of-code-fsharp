@@ -24,7 +24,7 @@ module Day02 =
         let setMemory offset value computer =
             { computer with Memory = Map.change offset (fun _ -> Some value) computer.Memory }
 
-        let executeOpcode opcode computer =
+        let private executeOpcode opcode computer =
             let fn =
                 match opcode with
                 | OpCode.Add -> Some (+)
@@ -38,18 +38,15 @@ module Day02 =
                                         (readMemoryPointer (computer.InstructionPointer + 2) computer)))
                         computer.Memory
 
+        let private calculateState = function
+        | OpCode.Halt -> Halted
+        | _ -> Running
+
         let executeNext computer =
             let opcode : OpCode = enum computer.Memory[computer.InstructionPointer]
-            let newMemory = executeOpcode opcode computer
-
-            let newState =
-                match opcode with
-                    | OpCode.Halt -> Halted
-                    | _ -> Running
-
             { computer with InstructionPointer = computer.InstructionPointer + 4;
-                            Memory = newMemory;
-                            State = newState }
+                            Memory = executeOpcode opcode computer;
+                            State = calculateState opcode }
 
 
         let rec run computer =
@@ -76,5 +73,15 @@ module Day02 =
         |> Computer.readMemory 0
 
     [<AocSolver(2019, 2, Level = 2)>]
-    let solve2 (_input: string) =
-        2
+    let solve2 (input: string) =
+        { 0..10000 }
+        |> Seq.map (fun n ->
+            let noun = n / 100
+            let verb = n % 100
+            input |> parse |> Computer.create
+            |> Computer.setMemory 1 noun
+            |> Computer.setMemory 2 verb
+            |> Computer.run |> Computer.readMemory 0)
+        |> Seq.indexed
+        |> Seq.find (fun (_, x) -> x = 19690720)
+        |> fst
