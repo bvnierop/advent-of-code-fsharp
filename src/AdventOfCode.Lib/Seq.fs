@@ -42,7 +42,3 @@ let foldWhile folder initial source =
 let repeat fn initial =
     Seq.unfold (fun state ->
                 Some (state, fn state)) initial
-
-let repeat2 fn initial =
-    Seq.unfold (fun state ->
-                Some (state, fn state)) (fn initial)
