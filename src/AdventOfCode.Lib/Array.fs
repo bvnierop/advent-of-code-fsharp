@@ -1,5 +1,8 @@
 module Array
 
+let last (arr: _[]) = arr[arr.Length - 1]
+let first (arr: _[]) = arr[0]
+
 let findIndex2D predicate (array: 'a array array) =
     Seq.pick id <| seq {
         for y = 0 to Array.length array - 1 do
