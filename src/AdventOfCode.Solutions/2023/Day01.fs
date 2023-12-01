@@ -5,7 +5,6 @@ open AdventOfCode.Lib.Solver
 open System
 
 module Day01 =
-
     let extractCalibrationValue str =
        let digits =
            str
