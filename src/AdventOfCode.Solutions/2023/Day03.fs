@@ -43,15 +43,18 @@ module Day03 =
         |> fst
         |> List.toArray
 
+    let findParts filter schematic =
+        schematic
+        |> Array.indexed
+        |> Array.collect (fun (y, row) ->
+            row |> Array.indexed |> Array.filter (fun (_, cell) -> List.contains cell filter)
+            |> Array.map (fun (x, _) -> (y, x)))
+
+
     [<AocSolver(2023, 3, Level = 1)>]
     let solve1 (input: string list) =
         let schematic = input |> parse
-        let parts =
-            schematic
-            |> Array.indexed
-            |> Array.collect (fun (y, row) ->
-                row |> Array.indexed |> Array.filter (fun (_, cell) -> cell = Some PotentialGear || cell = Some OtherPart)
-                |> Array.map (fun (x, _) -> (y, x)))
+        let parts = findParts [Some PotentialGear; Some OtherPart] schematic
         let neighboursByPart =
             parts
             |> Array.map (fun (y, x) -> Array.neighbours8 y x schematic |> Array.ofSeq)
@@ -69,12 +72,7 @@ module Day03 =
     [<AocSolver(2023, 3, Level = 2)>]
     let solve2 (input: string list) =
         let schematic = input |> parse
-        let parts =
-            schematic
-            |> Array.indexed
-            |> Array.collect (fun (y, row) ->
-                row |> Array.indexed |> Array.filter (fun (_, cell) -> cell = Some PotentialGear)
-                |> Array.map (fun (x, _) -> (y, x)))
+        let parts = findParts [Some PotentialGear] schematic
         let neighboursByPart =
             parts
             |> Array.map (fun (y, x) -> Array.neighbours8 y x schematic |> Array.ofSeq)
