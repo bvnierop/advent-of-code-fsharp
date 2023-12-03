@@ -44,47 +44,36 @@ module Day03 =
         |> fst
         |> List.toArray
 
-    let findParts filter schematic =
+    let findPartIndices filter schematic =
         schematic
         |> Array.indexed
         |> Array.collect (fun (y, row) ->
             row |> Array.indexed |> Array.filter (fun (_, cell) -> List.contains cell filter)
             |> Array.map (fun (x, _) -> (y, x)))
 
+    let neighbouringNumbers schematic (partY, partX) =
+        (partY, partX, schematic)
+        |||> Array.neighbouringValues8
+        |> Seq.choose (function
+            | Number (n, i) -> Some (n, i)
+            | _ -> None)
+        |> Seq.distinct
 
     [<AocSolver(2023, 3, Level = 1)>]
     let solve1 (input: string list) =
         let schematic = input |> parse
-        let parts = findParts [PotentialGear; OtherPart] schematic
-        let neighboursByPart =
-            parts
-            |> Array.map (fun (y, x) -> Array.neighbours8 y x schematic |> Array.ofSeq)
-        neighboursByPart
-        |> Array.map (fun pts ->
-            pts
-            |> Array.map (fun (y, x) -> Array.getDefault2D Nothing y x schematic)
-            |> Array.choose (function
-                | Number (n, i) -> Some (n, i)
-                | _ -> None)
-            |> Set.ofArray
-            |> Set.sumBy fst)
-        |> Array.sum
+        let parts = findPartIndices [PotentialGear; OtherPart] schematic
+
+        parts
+        |> Array.map (neighbouringNumbers schematic)
+        |> Array.sumBy (Seq.sumBy fst)
 
     [<AocSolver(2023, 3, Level = 2)>]
     let solve2 (input: string list) =
         let schematic = input |> parse
-        let parts = findParts [PotentialGear] schematic
-        let neighboursByPart =
-            parts
-            |> Array.map (fun (y, x) -> Array.neighbours8 y x schematic |> Array.ofSeq)
-        neighboursByPart
-        |> Array.map (fun pts ->
-            pts
-            |> Array.map (fun (y, x) -> Array.getDefault2D Nothing y x schematic)
-            |> Array.choose (function
-                | Number (n, i) -> Some (n, i)
-                | _ -> None)
-            |> Set.ofArray)
-       |> Array.filter (fun s -> Set.count s = 2)
-       |> Array.map (Set.map fst >> Set.fold (*) 1)
-       |> Array.sum
+        let parts = findPartIndices [PotentialGear] schematic
+
+        parts
+        |> Array.map (neighbouringNumbers schematic)
+        |> Array.filter (fun s -> Seq.length s = 2)
+        |> Array.sumBy (Seq.map fst >> Seq.fold (*) 1)

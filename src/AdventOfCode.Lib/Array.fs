@@ -41,6 +41,10 @@ let neighbours8 index1 index2 (array: 'a array array) = seq {
                newI2 >= 0 && newI2 < Array.length array[newI1] then yield (newI1, newI2)
 }
 
+let neighbouringValues8 index1 index2 (array: 'a array array) =
+    neighbours8 index1 index2 array
+    |> Seq.map (fun (i1, i2) -> array[i1][i2])
+
 let fold2D folder initialState arr =
     Array.fold (fun state row ->
         Array.fold (fun state cell -> folder state cell) state row
