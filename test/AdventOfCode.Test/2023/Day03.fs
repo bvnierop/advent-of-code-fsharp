@@ -9,7 +9,7 @@ open AdventOfCode.Solutions._2023.Day03
 [<Fact>]
 let ``parse a line`` () =
     let line = "467..114..$"
-    let expected = [| Some (Digit 4); Some (Digit 6); Some (Digit 7); None; None; Some (Digit 1); Some (Digit 1); Some (Digit 4); None; None; Some OtherPart |]
+    let expected = [| (Digit 4); (Digit 6); (Digit 7); Nothing; Nothing; (Digit 1); (Digit 1); (Digit 4); Nothing; Nothing; OtherPart |]
     test <@ parseLine line = expected @>
 
 [<Fact>]
@@ -17,7 +17,7 @@ let ``convert digits to numbers`` () =
     let line = "467..114..*"
     let firstNumber = Number (467, 0)
     let secondNumber = Number (114, 1)
-    let expected = [| Some firstNumber; Some firstNumber; Some firstNumber; None; None; Some secondNumber; Some secondNumber; Some secondNumber; None; None; Some PotentialGear |]
+    let expected = [| firstNumber; firstNumber; firstNumber; Nothing; Nothing; secondNumber; secondNumber; secondNumber; Nothing; Nothing; PotentialGear |]
     test <@ convertDigits 0 (parseLine line) = (expected, 2) @>
 
 [<Fact>]
@@ -32,8 +32,8 @@ let ``convert multiple lines`` () =
     let thirdNumber = Number (42, 2)
 
     let expected = [|
-        [| Some firstNumber; Some firstNumber; Some firstNumber; None; None; Some secondNumber; Some secondNumber; Some secondNumber; None; None; Some OtherPart |]
-        [|None; None; None; None; None; None; None; None; None;  Some thirdNumber; Some thirdNumber |]
+        [| firstNumber; firstNumber; firstNumber; Nothing; Nothing; secondNumber; secondNumber; secondNumber; Nothing; Nothing; OtherPart |]
+        [|Nothing; Nothing; Nothing; Nothing; Nothing; Nothing; Nothing; Nothing; Nothing;  thirdNumber; thirdNumber |]
     |]
     test <@ parse lines = expected @>
 
