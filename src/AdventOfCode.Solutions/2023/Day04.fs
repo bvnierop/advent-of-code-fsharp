@@ -25,12 +25,24 @@ module Day04 =
                                  |> Set.length
         [ for i = 1 to winningNumberCount do yield cardIndex + i ]
 
+    let totalWinningsOf =
+        let mutable memo = Map.empty
+        let rec totalWinningsOf (cards: Card array) cardIndex =
+            if Map.containsKey cardIndex memo then
+                Map.find cardIndex memo
+            else
+                let winnings = winningsOf cardIndex cards
+                let totalWinnings = List.sumBy (totalWinningsOf cards) winnings
+                let total = List.length winnings + totalWinnings
+                memo <- Map.add cardIndex total memo
+                total
+        totalWinningsOf
+
+
     let scratch (cards: Card array) =
-        let rec scratchMany remaining count =
-            match remaining with
-            | [] -> count
-            | x :: xs -> scratchMany (List.concat [ (winningsOf x cards); xs ]) (count + 1)
-        scratchMany [ 0..Array.length cards - 1 ] 0
+        [ 0..Array.length cards - 1 ]
+        |> List.sumBy (totalWinningsOf cards)
+        |> ((+) (Array.length cards))
 
     [<AocSolver(2023, 4, Level = 1)>]
     let solve1 (input: string list) =
