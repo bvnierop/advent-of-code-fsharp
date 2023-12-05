@@ -20,6 +20,7 @@
     <Compile Include="Array.fs" />
     <Compile Include="Queue.fs" />
     <Compile Include="HashSet.fs" />
+    <Compile Include="Range.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,42 +1,15 @@
 namespace AdventOfCode.Solutions._2023
 
 open AdventOfCode.Lib.Solver
+open AdventOfCode.Lib
 
 module Day05 =
-    module Range =
-        type 'a t = { Start: 'a; End: 'a }
-        let makeWithLength start length = { Start = start; End = start + length }
-        let contains number range = range.Start <= number && number < range.End
-
-        let create low high = { Start = low; End = high }
-        let inline last range = range.End - LanguagePrimitives.GenericOne
-        let disjoint range1 range2 =
-            last range2 < range1.Start || last range1 < range2.Start
-
-        let intersection range1 range2 =
-           create (max range1.Start range2.Start) (min range1.End range2.End)
-
-        let shift distance range = { Start = range.Start + distance; End = range.End + distance }
-
-        let split distance range =
-            let first = { Start = range.Start; End = min (range.Start + distance) range.End }
-            let second = { Start = min (range.Start + distance) range.End; End = range.End }
-            (first, second)
-
-        let inline length range = max (range.End - range.Start) LanguagePrimitives.GenericZero
-        let inline empty range = length range = LanguagePrimitives.GenericZero
-
-        let difference range1 range2 =
-            [ create range1.Start (min range1.End range2.Start)
-              create (max range1.Start range2.End) range1.End ]
-            |> List.filter (empty >> not)
-
     module AlmanacMap =
         type t = { SourceRange: int64 Range.t; DestinationStart: int64 }
         let make (ranges: (int64 * int64 * int64) list) =
             ranges
             |> List.map (fun (destStart, srcStart, length) ->
-                { SourceRange = Range.makeWithLength srcStart length; DestinationStart = destStart })
+                { SourceRange = Range.createWithLength srcStart length; DestinationStart = destStart })
 
         let translateWithRanges (fromRange: int64 Range.t) (toRanges: t list) =
             let translateWithRanges' (fromRange: int64 Range.t) (toRange: t) =
