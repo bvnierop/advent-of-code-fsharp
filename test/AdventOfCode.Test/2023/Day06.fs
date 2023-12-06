@@ -4,6 +4,15 @@ open Xunit
 open Swensen.Unquote
 open AdventOfCode.Solutions._2023.Day06
 
+
+[<Fact>]
+let ``smallest number of seconds to push the button`` () =
+    test <@ firstWinCondition (Time 7) (Distance 9) = 2 @>
+
+[<Fact>]
+let ``largest number of seconds to push the button`` () =
+    test <@ lastWinCondition (Time 7) (Distance 9) = 5 @>
+
 [<Fact>]
 let ``count number of ways to win`` () =
     let t = (Time 7)

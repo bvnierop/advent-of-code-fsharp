@@ -7,10 +7,20 @@ module Day06 =
     type Time = Time of int
     type Distance = Distance of int64
 
+    let discriminant (a: double) (b: double) (c: double) = sqrt ((b * b) - (4.0 * a * c))
+
+    let firstWinCondition (Time t) (Distance d) =
+        let b = double t
+        let c = double d
+        int <| floor ((b - discriminant 1 b c) / 2.0 + 1.0)
+
+    let lastWinCondition (Time t) (Distance d) =
+        let b = double t
+        let c = double d
+        int <| ceil ((b + discriminant 1 b c) / 2.0 - 1.0)
+
     let waysToWin (Time t) (Distance d) =
-        [ for i in 0 .. t do yield int64 i * ((int64 t) - (int64 i)) ]
-        |> List.filter (fun x -> x > d)
-        |> List.length
+        lastWinCondition (Time t) (Distance d) - firstWinCondition (Time t) (Distance d) + 1
 
     let pLine = manyCharsTill anyChar (pchar ':') >>. spaces >>. sepEndBy pint32 spaces
 
