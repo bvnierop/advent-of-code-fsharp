@@ -18,6 +18,7 @@
         <Compile Include="2023\Day05.fs" />
         <Compile Include="2023\Day06.fs" />
         <Compile Include="2023\Day07.fs" />
+        <Compile Include="2023\Day08.fs" />
   </ItemGroup> <!-- Solutions -->
 
   <ItemGroup>
@@ -27,7 +28,7 @@
   <ItemGroup>
     <Content Include="..\..\input\**" LinkBase="input" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
-    
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="unquote" Version="6.1.0" />
@@ -44,6 +45,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AdventOfCode.Solutions\AdventOfCode.Solutions.fsproj" />
+      <ProjectReference Include="..\..\src\AdventOfCode.Lib\AdventOfCode.Lib.fsproj" />
   </ItemGroup>
 
 

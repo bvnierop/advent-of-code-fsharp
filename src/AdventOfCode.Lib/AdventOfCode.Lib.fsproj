@@ -21,6 +21,8 @@
     <Compile Include="Queue.fs" />
     <Compile Include="HashSet.fs" />
     <Compile Include="Range.fs" />
+    <Compile Include="CircularCollection.fs" />
+    <Compile Include="Math.fs" />
   </ItemGroup>
 
   <ItemGroup>
