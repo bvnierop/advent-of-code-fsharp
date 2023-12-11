@@ -126,7 +126,7 @@ module Day10 =
                 | _ -> false
             else false
 
-        Array2D.foldi (fun x y (cellsInLoop, inLoop) _shape ->
+        Array2D.foldi (fun (cellsInLoop, inLoop) y x  _shape ->
             let inLoop' = if x = 0 then false else inLoop
             if verticalPipeInLoop x y then (cellsInLoop, not inLoop')
             elif inLoop' && not (Set.contains (x, y) path) then (Set.add (x, y) cellsInLoop, inLoop')
@@ -135,7 +135,7 @@ module Day10 =
 
     [<AocSolver(2023, 10, Level = 1)>]
     let solve1 (input: string list) =
-        findLoop (parse input) |> List.length |> (fun x -> x / 2 + 1)
+        findLoop (parse input) |> List.length |> (fun x -> x / 2)
 
     [<AocSolver(2023, 10, Level = 2)>]
     let solve2 (input: string list) =

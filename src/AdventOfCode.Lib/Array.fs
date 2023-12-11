@@ -52,7 +52,7 @@ let fold2D folder initialState arr =
 
 let foldi folder initialState arr =
     Array.indexed arr
-    |> Array.fold (fun state (index, column) -> folder state index column) initialState
+    |> Array.fold (fun state (index, elem) -> folder state index elem) initialState
 
 let foldi2D folder initialState arr =
     foldi (fun state rowIndex ->

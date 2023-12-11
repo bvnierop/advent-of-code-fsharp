@@ -1,11 +1,7 @@
 module Array2D
-let foldi (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+let foldi (folder: 'S -> int -> int -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
-    let b1 = Array2D.base1 array
-    let b2 = Array2D.base2 array
-    for y in b1 .. b1 + Array2D.length1 array - 1 do
-        for x in b2 .. b2 + Array2D.length2 array - 1 do
-            state <- folder x y state (array.[y, x])
+    Array2D.iteri (fun row column value -> state <- folder state row column value) array
     state
 
 let fold (folder: 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
