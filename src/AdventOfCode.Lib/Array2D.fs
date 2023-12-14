@@ -4,6 +4,26 @@ let foldi (folder: 'S -> int -> int -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     Array2D.iteri (fun row column value -> state <- folder state row column value) array
     state
 
+let foldiWhile (folder: 'State -> int -> int -> 'ElementType -> bool * 'State) (state: 'State) (array: 'ElementType[,]) =
+    let start1 = Array2D.base1 array
+    let start2 = Array2D.base2 array
+    let end1 = start1 + Array2D.length1 array - 1
+    let end2 = start2 + Array2D.length2 array - 1
+    let rec recurse i1 i2 state =
+        if i1 = end1 && i2 = end2 then state
+        else
+            let cont, state' = folder state i1 i2 array[i1, i2]
+            if cont then
+                recurse
+                    (if i2 = end2 then i1 + 1 else i1)
+                    (if i2 = end2 then start2 else i2 + 1)
+                    state'
+            else
+                state'
+    recurse 0 0 state
+
+
+
 let fold (folder: 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
     let b1 = Array2D.base1 array
