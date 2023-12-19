@@ -94,24 +94,6 @@ let tiltRight(grid: char Grid2D.t) =
 
 let tiltCycle grid = grid |> tiltUp |> tiltLeft |> tiltDown |> tiltRight
 
-// initial: 0
-// t1: 1
-// t2: 2
-// t3: 3
-// t4: 4
-// t5: 5
-// t6: 6
-// t3....
-//   stepCount = 7
-//   seen[t3] = 3 -> runup = 3 -> cycle = 4
-//
-// 30 total cycles
-// Do it 3 times first -> t3 (27 remaining)
-// Next  t3 states are at 7, 11, 15, 19, 23, 27, that leaves 28, 29 and 30 (for a total of 3 + 3 = 6)
-// 30 - 3 = 27
-// 27 % 4 = 3
-// 3 + 3 = 6
-
 let calculateTiltCycleCount grid =
     let rec findCycle grid seen stepCount =
         if Map.containsKey grid seen then
@@ -142,8 +124,6 @@ module Day14 =
         let afterMoving = tiltUp grid
         let weight = totalWeight afterMoving
         weight
-
-        // Move all rocks up
 
     [<AocSolver(2023, 14, Level = 2)>]
     let solve2 (input: string list) =
