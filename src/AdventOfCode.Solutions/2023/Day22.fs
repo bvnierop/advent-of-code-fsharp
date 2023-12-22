@@ -29,6 +29,19 @@ Block don't overlap if:
 
  A brick can be disintegrated if all bricks it supports have at least one other support
     n * n * n is too expensive, probably, but we can cache later
+
+PART 2
+
+For each brick, determine how many bricks fall if this one is disintegrated. Sum the results.
+
+(OPTIMIZATION NOTE: WE CAN MEMOIZE THE RESULTS IF NEEDED):
+    If A causes F to fall, and F causes G to fall, then we only need to compute F once,
+    and just look it up the second time.
+
+We'll pass a list of settled bricks and assume that the first one will be disintegrated. Then:
+  For each other brick
+    if all of its supporting bricks have been disintegrated OR fallen
+        then it falls (so mark it)
 *)
 
 let pCoord = pipe3 (pint32 .>> pchar ',') (pint32 .>> pchar ',') pint32 (fun x y z -> (x,y,z))
@@ -79,6 +92,24 @@ let canBeDisintegrated bricks brick =
         res
     ) supportedBricks
 
+// We'll pass a list of settled bricks and assume that the first one will be disintegrated. Then:
+//   For each other brick
+//     if all of its supporting bricks have been disintegrated OR fallen
+//         then it falls (so mark it)
+let rec countFallingBricks settledBricks brick =
+    let rec loop bricks gone =
+        match bricks with
+        | [] -> Set.length gone - 1 // We don't count the first brick
+        | brick::bricks ->
+            let supportingBricks = List.filter (supports brick) settledBricks |> Set.ofList
+            let supportingBricksRemaining = Set.difference supportingBricks gone
+            if Set.isEmpty supportingBricks then loop bricks gone // This is a ground brick. It doesn't fall.
+            elif Set.isEmpty supportingBricksRemaining then loop bricks (Set.add brick gone)
+            else loop bricks gone
+
+    let skip = List.findIndex (fun b -> b = brick) settledBricks
+    loop (List.skip (skip + 1) settledBricks) (Set.ofList [brick])
+
 let show bricks =
     List.iter (fun brick ->
         let (minX, minY, minZ), (maxX, maxY, maxZ) = brick
@@ -112,4 +143,9 @@ let solve1 (input: string list) =
 
 [<AocSolver(2023, 22, Level = 2)>]
 let solve2 (input: string list) =
-    2
+    let bricks = List.map parse input
+    let settled = settle bricks
+
+    [0..List.length settled - 1]
+    |> List.map (fun i -> countFallingBricks settled (List.item i settled))
+    |> List.sum
