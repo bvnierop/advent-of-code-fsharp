@@ -6,5 +6,5 @@ open Swensen.Unquote
 open AdventOfCode.Solutions._2023.Day16
 
 [<Fact>]
-let ``Day16`` () =
-    test <@ true = true @>
+let ``solve part 2`` () =
+  test <@ true = true @>
