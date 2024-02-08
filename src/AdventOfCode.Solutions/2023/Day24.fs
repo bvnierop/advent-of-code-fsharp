@@ -178,7 +178,7 @@ let solve2 (input: string list) =
                     let distance = abs (z1 - z2)
                     potentialRockX <> hailVelocity && distance % (potentialRockX - hailVelocity) = 0m) allLinePairs
                 satisfy))
-    (vx, vy, vz)
+    // (vx, vy, vz)
 
     let rockVelocity = (List.head vx, List.head vy, List.head vz)
     let line1 = List.head lines |> adjustVelocity rockVelocity
